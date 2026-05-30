@@ -1,0 +1,16 @@
+# キャッシュ（スクレイピング結果。再取得できるのでGit管理しない）
+data/cache.json
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+
+# エディタ
+.vscode/
+.idea/
