@@ -11,7 +11,7 @@ from scraper import (
 
 st.set_page_config(
     page_title="リアル脱出ゲーム 名古屋 検索",
-    page_icon="🔍",
+    page_icon=":material/vpn_key:",
     layout="wide",
 )
 
@@ -19,40 +19,133 @@ st.set_page_config(
 # ── 容量チェック ─────────────────────────────────────────────
 
 
-def capacity_label(stock, unit: str, group_size: int) -> str:
-    """在庫と参加人数から判定ラベルを返す"""
+def capacity_status(stock, unit: str, group_size: int):
+    """在庫と参加人数から (状態キー, 表示テキスト) を返す。
+    状態キー: ok（余裕あり）/ warn（人数に不足の可能性）/ full（満員）/ unknown（不明）"""
     if stock is None:
-        return "？ 不明"
+        return "unknown", "不明"
     if stock == 0:
-        return "❌ 満員"
+        return "full", "満員"
     if unit == "人":
         if stock >= group_size:
-            return f"✅ 残り{stock}人"
-        else:
-            return f"⚠️ 残り{stock}人（{group_size}人には不足）"
-    else:
-        # 「組」単位: 1組として予約するため1以上あればOK
-        return f"✅ 残り{stock}組"
+            return "ok", f"残り{stock}人"
+        return "warn", f"残り{stock}人（{group_size}人には不足）"
+    # 「組」単位: 1組として予約するため1以上あればOK
+    return "ok", f"残り{stock}組"
 
 
-def capacity_rank(label: str) -> int:
-    if label.startswith("✅"):
-        return 0
-    if label.startswith("⚠️"):
-        return 1
-    if label.startswith("❌"):
-        return 2
-    return 3
+# 状態の並び順（良い順）
+STATUS_RANK = {"ok": 0, "warn": 1, "full": 2, "unknown": 3}
 
+# タブ2のテーブル内で使う記号（1セルに複数枠が入るため色は付けられない）
+STATUS_MARK = {"ok": "○", "warn": "△", "full": "×", "unknown": "－"}
 
-def best_slot_label(slots, unit, group_size):
-    """その演目のスロット群から最良の状況ラベルを返す"""
-    best = max(slots, key=lambda s: (s["stock"] or 0))
-    return capacity_label(best["stock"], unit, group_size)
+# 空き状況バッジの背景色・文字色
+STATUS_STYLE = {
+    "ok": "background-color:#DCFCE7; color:#166534;",
+    "warn": "background-color:#FEF3C7; color:#92400E;",
+    "full": "background-color:#FEE2E2; color:#991B1B;",
+    "unknown": "background-color:#F1F5F9; color:#475569;",
+}
 
 
 def weekday_jp(d: date) -> str:
     return "月火水木金土日"[d.weekday()]
+
+
+# ── 見た目（CSS / ヘッダー）─────────────────────────────────
+
+
+def inject_css():
+    """全体のスタイルとMaterial Symbolsアイコンを読み込む"""
+    st.markdown(
+        """
+        <style>
+        html, body, [class*="css"] {
+            font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans",
+                "Noto Sans JP", sans-serif;
+        }
+        .block-container {
+            padding-top: 1.5rem;
+            padding-bottom: 3rem;
+            max-width: 1100px;
+        }
+        @media (max-width: 640px) {
+            .block-container {
+                padding-left: 0.8rem;
+                padding-right: 0.8rem;
+                padding-top: 1rem;
+            }
+        }
+        /* カスタムヘッダー */
+        .app-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.2rem 0 1rem;
+            border-bottom: 1px solid #E2E8F0;
+            margin-bottom: 1.2rem;
+        }
+        .app-header .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2563EB, #4F46E5);
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .app-header .icon svg { width: 28px; height: 28px; }
+        .app-header .title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #0F172A;
+            line-height: 1.2;
+        }
+        .app-header .sub {
+            font-size: 0.82rem;
+            color: #64748B;
+            margin-top: 2px;
+        }
+
+        /* ボタンを軽いタグ風に */
+        .stButton > button {
+            border-radius: 999px;
+            padding: 0.2rem 0.85rem;
+            font-size: 0.82rem;
+            border: 1px solid #CBD5E1;
+            background: #fff;
+            color: #334155;
+        }
+        .stButton > button:hover {
+            border-color: #2563EB;
+            color: #2563EB;
+        }
+
+        /* テーブルを少しコンパクトに */
+        [data-testid="stDataFrame"] { font-size: 0.9rem; }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_header():
+    """アプリ上部のタイトルヘッダー"""
+    st.markdown(
+        """
+        <div class="app-header">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg></div>
+          <div>
+            <div class="title">リアル脱出ゲーム 名古屋</div>
+            <div class="sub">チケット空き状況チェッカー</div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # ── キャッシュラッパー ───────────────────────────────────────
@@ -76,10 +169,11 @@ def get_schedule(start_iso, end_iso, weekend_only):
 
 
 def main():
-    st.title("🎮 リアル脱出ゲーム 名古屋 チケット検索")
+    inject_css()
+    render_header()
 
     with st.sidebar:
-        st.header("設定")
+        st.subheader(":material/tune: 設定")
         group_size = st.number_input(
             "参加予定人数", min_value=1, max_value=20, value=4, step=1
         )
@@ -90,11 +184,13 @@ def main():
         if updated:
             st.caption(f"演目情報の最終更新: {updated}")
         st.caption("空き状況は2時間キャッシュされます")
-        if st.button("🔄 データを今すぐ更新"):
+        if st.button("データを今すぐ更新", icon=":material/refresh:"):
             st.cache_data.clear()
             st.rerun()
 
-    tab1, tab2 = st.tabs(["🎭 演目から探す", "📅 日付から探す"])
+    tab1, tab2 = st.tabs(
+        [":material/theater_comedy: 演目から探す", ":material/calendar_month: 日付から探す"]
+    )
 
     # ── タブ1: 演目から探す ──────────────────────────────────
     with tab1:
@@ -171,14 +267,15 @@ def render_tab_event(group_size, hide_full):
         for s in r["slots"]:
             if hide_full and (s["stock"] == 0):
                 continue
-            label = capacity_label(s["stock"], unit, group_size)
+            status, text = capacity_status(s["stock"], unit, group_size)
             table_rows.append(
                 {
                     "日付": f"{d.month}/{d.day}({r['weekday']})",
                     "時刻": s["time"],
-                    "空き状況": label,
+                    "空き状況": text,
                     "予約": s.get("ticket_url") or "",
                     "_d": d,
+                    "_status": status,
                 }
             )
 
@@ -187,9 +284,17 @@ def render_tab_event(group_size, hide_full):
         return
 
     table_rows.sort(key=lambda x: (x["_d"], x["時刻"]))
-    df = pd.DataFrame(table_rows)[["日付", "時刻", "空き状況", "予約"]]
+    df = pd.DataFrame(table_rows)
+
+    # 「空き状況」セルを状態（ok/warn/full）に応じて色付け
+    def color_status(_col):
+        return [STATUS_STYLE.get(s, "") for s in df["_status"]]
+
+    styled = df[["日付", "時刻", "空き状況", "予約"]].style.apply(
+        color_status, subset=["空き状況"]
+    )
     st.dataframe(
-        df,
+        styled,
         use_container_width=True,
         hide_index=True,
         column_config={
@@ -201,37 +306,52 @@ def render_tab_event(group_size, hide_full):
 
 def render_tab_date(group_size, hide_full):
     today = date.today()
-    c1, c2, c3 = st.columns([2, 2, 2])
-    with c1:
-        start_d = st.date_input("期間（開始）", value=today, key="t2_s")
-    with c2:
-        end_d = st.date_input("期間（終了）", value=today + timedelta(days=30), key="t2_e")
-    with c3:
-        weekend_only = st.checkbox("土日のみ表示", value=True, key="t2_we")
 
-    q1, q2, q3 = st.columns(3)
-    with q1:
-        if st.button("今週末"):
-            sat = today + timedelta(days=(5 - today.weekday()) % 7)
-            st.session_state["t2_s"] = sat
-            st.session_state["t2_e"] = sat + timedelta(days=1)
-            st.rerun()
-    with q2:
-        if st.button("来週末"):
-            sat = today + timedelta(days=(5 - today.weekday()) % 7 + 7)
-            st.session_state["t2_s"] = sat
-            st.session_state["t2_e"] = sat + timedelta(days=1)
-            st.rerun()
-    with q3:
-        if st.button("今月の土日"):
-            first = today.replace(day=1)
-            if today.month == 12:
-                last = date(today.year + 1, 1, 1) - timedelta(days=1)
-            else:
-                last = date(today.year, today.month + 1, 1) - timedelta(days=1)
-            st.session_state["t2_s"] = first
-            st.session_state["t2_e"] = last
-            st.rerun()
+    def next_sat(offset_weeks: int = 0) -> date:
+        days = (5 - today.weekday()) % 7
+        return today + timedelta(days=days + offset_weeks * 7)
+
+    # containerで表示位置を先に確保し、日付欄が上・クイック選択が下になるよう制御
+    date_row = st.container()
+    quick_row = st.container()
+
+    # ボタン処理はwidget生成より前に実行する必要があるため quick_row を先に書く
+    with quick_row:
+        st.caption("クイック選択（土曜日をセット）")
+        lb_s, b_s1, b_s2, b_s3, _sp, lb_e, b_e1, b_e2, b_e3 = st.columns(
+            [0.8, 1, 1, 1.1, 0.4, 0.8, 1, 1, 1.1]
+        )
+        with lb_s:
+            st.caption("開始日")
+        with b_s1:
+            if st.button("今週土", key="qs_s1"):
+                st.session_state["t2_s"] = next_sat(0)
+        with b_s2:
+            if st.button("来週土", key="qs_s2"):
+                st.session_state["t2_s"] = next_sat(1)
+        with b_s3:
+            if st.button("再来週土", key="qs_s3"):
+                st.session_state["t2_s"] = next_sat(2)
+        with lb_e:
+            st.caption("終了日")
+        with b_e1:
+            if st.button("今週土", key="qs_e1"):
+                st.session_state["t2_e"] = next_sat(0)
+        with b_e2:
+            if st.button("来週土", key="qs_e2"):
+                st.session_state["t2_e"] = next_sat(1)
+        with b_e3:
+            if st.button("再来週土", key="qs_e3"):
+                st.session_state["t2_e"] = next_sat(2)
+
+    with date_row:
+        c1, c2, c3 = st.columns([2, 2, 2])
+        with c1:
+            start_d = st.date_input("期間（開始）", value=today, key="t2_s")
+        with c2:
+            end_d = st.date_input("期間（終了）", value=today + timedelta(days=30), key="t2_e")
+        with c3:
+            weekend_only = st.checkbox("土日のみ表示", value=True, key="t2_we")
 
     if start_d > end_d:
         st.warning("開始日が終了日より後になっています。")
@@ -240,7 +360,7 @@ def render_tab_date(group_size, hide_full):
     st.markdown("---")
     st.caption(
         "各演目の空いている時間帯をすべて表示します。"
-        "✅=参加人数OK / ⚠️=人数に対し残席不足の可能性 / ❌=満員"
+        "○=参加人数OK / △=人数に対し残席不足の可能性 / ×=満員"
     )
 
     with st.spinner("空き状況を確認中..."):
@@ -268,29 +388,21 @@ def render_tab_date(group_size, hide_full):
         for r in day_rows:
             unit = r["order_unit"]
             slot_labels = []
+            ranks = []
             for s in r["slots"]:
+                status, _text = capacity_status(s["stock"], unit, group_size)
+                ranks.append(STATUS_RANK[status])
                 if hide_full and (s["stock"] == 0):
                     continue
-                label = capacity_label(s["stock"], unit, group_size)
-                # 時刻 + 状況（簡潔に）
-                if label.startswith("✅"):
-                    mark = "✅"
-                elif label.startswith("⚠️"):
-                    mark = "⚠️"
-                elif label.startswith("❌"):
-                    mark = "❌"
-                else:
-                    mark = "？"
+                # 時刻 + 状況（簡潔に: ○=余裕 △=不足の可能性 ×=満員）
+                mark = STATUS_MARK[status]
                 stock_str = "満" if s["stock"] == 0 else f"{s['stock']}{unit}"
                 slot_labels.append(f"{mark}{s['time']}({stock_str})")
 
             if not slot_labels:
                 continue
 
-            best_rank = min(
-                capacity_rank(capacity_label(s["stock"], unit, group_size))
-                for s in r["slots"]
-            )
+            best_rank = min(ranks) if ranks else 3
             type_str = r["type"] or "－"
             size_str = f"{r['max_team_size']}人" if r["max_team_size"] else "－"
             rendered.append(
