@@ -41,9 +41,7 @@ escape/
 ├── app.py              # Streamlit UI（画面の描画・設定・カード表示）
 ├── scraper.py          # データ取得（スクレイピング・公式API呼び出し）
 ├── requirements.txt    # 依存ライブラリ
-├── icon.png            # アプリ用アイコン（オリジナル）
-├── static/
-│   └── icon.png        # 180×180アイコン（app.pyがGitHub raw URLで参照）
+├── icon.png            # アプリのアイコン（Streamlitのページアイコン／favicon用）
 ├── docs/               # GitHub Pages 用の「入口ページ」（iPhoneアイコン対応）
 │   ├── index.html          # apple-touch-iconを持ち、アプリへ転送する入口
 │   └── icon.png            # ホーム画面アイコン（180×180）
@@ -76,4 +74,4 @@ escape/
 - iOSは「ホーム画面に追加」時、ページ最初のHTMLの`<head>`にある`apple-touch-icon`しか読まない。Streamlit Cloudはこの最初のHTMLを編集できないため、Streamlit内のJS挿入ではアイコンを出せない。
 - そこで `docs/index.html`（最初から`apple-touch-icon`を持ち、開くとアプリへ転送する軽量ページ）を GitHub Pages（Settings→Pages→`main`ブランチ`/docs`）で公開している。
 - **ホーム画面に追加するURLはこの入口ページ** `https://tsuka911.github.io/escape/`（Streamlit直URLではない）。
-- アイコン画像を変えるときは `static/icon.png` と `docs/icon.png` の**両方**を 180×180 の正方形で差し替える。
+- ホーム画面アイコンを変えるときは `docs/icon.png`（180×180の正方形）を差し替える。

@@ -44,28 +44,8 @@ st.set_page_config(
     layout="wide",
 )
 
-# iPhoneホーム画面アイコン用（apple-touch-icon）
-# iOSはページ<head>内の実URLのlinkしか読まない（body内やdata:URIは不可）。
-# 画像は誰でもアクセスできるGitHubの公開URL(raw)から取り、iframe内のJSで
-# 親ページのheadに挿入する（Streamlitのiframeはallow-same-originなので親操作が可能）。
-_ICON_URL = "https://raw.githubusercontent.com/Tsuka911/escape/main/static/icon.png"
-_ICON_JS = f"""<script>
-    var doc = window.parent.document;
-    // 既存の同種linkを消してから入れ直す（再実行時の重複防止）
-    doc.querySelectorAll("link[rel='apple-touch-icon']").forEach(function(el){{ el.remove(); }});
-    var link = doc.createElement('link');
-    link.rel = 'apple-touch-icon';
-    link.href = '{_ICON_URL}';
-    doc.head.appendChild(link);
-    </script>"""
-# st.components.v1.html は 2026-06-01 に廃止予定。後継の st.iframe を使う。
-# 手元の古いバージョンには st.iframe が無いため、両対応にしておく。
-if hasattr(st, "iframe"):
-    # st.iframe は height>=1 が必須（0不可）。1pxで実質見えない。
-    st.iframe(_ICON_JS, height=1)
-else:
-    import streamlit.components.v1 as components
-    components.html(_ICON_JS, height=0)
+# ※iPhoneホーム画面アイコンは GitHub Pages の入口ページ(docs/index.html)で対応。
+#   Streamlit側のheadはiOSのアイコン取得に使えないため、ここでは何もしない。
 
 
 # ── 容量チェック ─────────────────────────────────────────────

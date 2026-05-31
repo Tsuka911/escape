@@ -16,8 +16,8 @@
 | `scraper.py` | 公式サイトのスクレイピングとチケットAPIの呼び出し |
 | `data/cache.json` | スクレイピング・APIのキャッシュ（git管理外） |
 | `data/user_settings.json` | 除外演目などのユーザー設定（git管理外） |
-| `.streamlit/config.toml` | テーマ（背景 `#F5F7FA`・サイドバー `#FBFCFE`・青アクセント `#2F6FED`）＋ `enableStaticServing` |
-| `static/icon.png` | 180×180アイコン。`app.py` がGitHub raw URLで参照 |
+| `.streamlit/config.toml` | テーマ（背景 `#F5F7FA`・サイドバー `#FBFCFE`・青アクセント `#2F6FED`） |
+| `icon.png` | Streamlitのページアイコン（favicon）。`app.py` の `st.set_page_config(page_icon=...)` で使用 |
 | `docs/index.html` | **GitHub Pages の入口ページ**（iPhoneホーム画面アイコン用） |
 | `docs/icon.png` | 入口ページが使うホーム画面アイコン（180×180） |
 
@@ -35,15 +35,8 @@
 - 解決策: **GitHub Pages の入口ページ `docs/index.html`** を使う。これは最初のHTMLに`apple-touch-icon`を持ち、standalone起動時はStreamlitアプリへ自動転送する軽量ページ。
   - GitHub Pages設定: Settings→Pages→`main`ブランチ`/docs`
   - **ホーム画面に追加するURLは入口ページ** `https://tsuka911.github.io/escape/`（Streamlit直URLではない）
-  - アイコンを変える時は `static/icon.png` と `docs/icon.png` の**両方**を180×180で差し替える
-- `app.py` 側にも`apple-touch-icon`をheadへ挿入するコードがあるが（GitHub raw URL参照）、上記の理由でiOSアイコンには効かない補助的なもの。
-- 試したが効かなかった方法（再挑戦しないこと）: `st.markdown`で`<link>`（除去される）／`data:`URI（iOSが受け付けない）／`st.html`でbodyに挿入（headに入らない）／`/app/static/`配信（Cloudでは画像でなくアプリHTMLが返る）。
-
-## Streamlit APIの廃止注意
-
-- `st.components.v1.html` は **2026-06-01 廃止**。後継は `st.iframe(src, height=...)`（HTML文字列も渡せる）。
-- `st.iframe` の `height` は **1以上が必須**（`0`は`StreamlitInvalidHeightError`）。旧`components.html`は`0`可だったので移行時に注意。
-- `app.py` では `hasattr(st, "iframe")` で新旧両対応にしている（手元の古いバージョンには`st.iframe`が無いため）。
+  - ホーム画面アイコンを変える時は `docs/icon.png` を180×180で差し替える
+- 試したが効かなかった方法（`app.py`内でやろうとしない・再挑戦しないこと）: `st.markdown`で`<link>`（除去される）／`data:`URI（iOSが受け付けない）／`st.html`でbodyに挿入（headに入らない）／`st.iframe`/`components.html`でJSによるhead挿入（iOSは後からJS挿入したアイコンを無視）／`/app/static/`配信（Cloudでは画像でなくアプリHTMLが返る）。
 
 ## 検索から除外される演目
 

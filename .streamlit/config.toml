@@ -1,7 +1,3 @@
-[server]
-# static/ 以下のファイルを /app/static/ で配信できるようにする（apple-touch-icon用）
-enableStaticServing = true
-
 [theme]
 base = "light"
 primaryColor = "#2F6FED"
