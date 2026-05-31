@@ -55,7 +55,7 @@ def capacity_status(stock, unit: str, group_size: int):
     if unit == "人":
         if stock >= group_size:
             return "ok", f"残り{stock}人"
-        return "warn", f"残り{stock}人（{group_size}人には不足）"
+        return "warn", f"残り{stock}人"
     # 「組」単位: 1組として予約するため1以上あればOK
     return "ok", f"残り{stock}組"
 
@@ -66,27 +66,61 @@ STATUS_RANK = {"ok": 0, "warn": 1, "full": 2, "unknown": 3}
 # タブ2のテーブル内で使う記号（1セルに複数枠が入るため色は付けられない）
 STATUS_MARK = {"ok": "○", "warn": "△", "full": "×", "unknown": "－"}
 
-# 空き状況バッジの背景色・文字色
+# 空き状況バッジの背景色・文字色（A:クリーン トーン）
 STATUS_STYLE = {
-    "ok": "background-color:#DCFCE7; color:#166534;",
-    "warn": "background-color:#FEF3C7; color:#92400E;",
-    "full": "background-color:#FEE2E2; color:#991B1B;",
-    "unknown": "background-color:#F1F5F9; color:#475569;",
+    "ok": "background-color:#E6F6EC; color:#1D8A4E;",
+    "warn": "background-color:#FDF1DE; color:#B9740F;",
+    "full": "background-color:#FDEAEA; color:#CC3B3B;",
+    "unknown": "background-color:#EEF2F7; color:#8A94A3;",
 }
+
+# 予約ボタン内の外部リンク矢印（絵文字不使用・SVGで統一）
+BOOK_ARROW = (
+    '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" '
+    'stroke="currentColor" stroke-width="2.2" stroke-linecap="round" '
+    'stroke-linejoin="round" style="margin-left:5px">'
+    '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7'
+    'a1 1 0 0 1 1-1h5"/></svg>'
+)
 
 
 def weekday_jp(d: date) -> str:
     return "月火水木金土日"[d.weekday()]
 
 
+def day_head_html(d: date, right_text: str) -> str:
+    """日付見出し（曜日カラー + 罫線 + 右側ヒント）。タブ1/2共通。"""
+    wd = weekday_jp(d)
+    color = "#2F6FED" if wd == "土" else "#D8453D" if wd == "日" else "#1A2230"
+    return (
+        '<div class="day-head">'
+        f'<span class="day-date">{d.month}/{d.day}'
+        f'<span style="color:{color};font-weight:700">（{wd}）</span></span>'
+        '<span class="day-rule"></span>'
+        f'<span class="day-count">{escape(right_text)}</span>'
+        "</div>"
+    )
+
+
 # ── 見た目（CSS / ヘッダー）─────────────────────────────────
 
 
 def inject_css():
-    """全体のスタイルとMaterial Symbolsアイコンを読み込む"""
+    """全体のスタイルとMaterial Symbolsアイコンを読み込む（A:クリーン トーン）"""
     st.markdown(
         """
         <style>
+        :root {
+            --accent: #2F6FED;
+            --accent-strong: #2862D8;
+            --text: #1A2230;
+            --text-sub: #5A6678;
+            --text-faint: #909AAB;
+            --border: #E7EBF1;
+            --border-soft: #E3E8EF;
+            --chip: #EEF2F7;
+            --card-shadow: 0 1px 2px rgba(20,40,80,0.05), 0 4px 14px rgba(20,40,80,0.04);
+        }
         html, body, [class*="css"] {
             font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans",
                 "Noto Sans JP", sans-serif;
@@ -112,56 +146,103 @@ def inject_css():
         .app-header {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.85rem;
             padding: 0.2rem 0 1rem;
-            border-bottom: 1px solid #E2E8F0;
-            margin-bottom: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.3rem;
         }
         .app-header .icon {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 48px;
-            height: 48px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #2563EB, #4F46E5);
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: linear-gradient(150deg, #3B7BF4, #2F6FED);
             color: #fff;
             flex-shrink: 0;
+            box-shadow: 0 1px 2px rgba(47,111,237,0.25);
         }
-        .app-header .icon svg { width: 28px; height: 28px; }
+        .app-header .icon svg { width: 26px; height: 26px; }
         .app-header .title {
-            font-size: 1.35rem;
-            font-weight: 700;
-            color: #0F172A;
-            line-height: 1.2;
+            font-size: 1.38rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.18;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
         }
         .app-header .sub {
-            font-size: 0.82rem;
-            color: #64748B;
-            margin-top: 2px;
+            font-size: 0.83rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            margin-top: 3px;
         }
 
-        /* ボタンを軽いタグ風に */
+        /* サイドバーのボタンを軽いタグ風に */
         .stButton > button {
             border-radius: 999px;
-            padding: 0.2rem 0.85rem;
+            padding: 0.2rem 0.9rem;
             font-size: 0.82rem;
-            border: 1px solid #CBD5E1;
+            font-weight: 600;
+            border: 1px solid var(--border-soft);
             background: #fff;
-            color: #334155;
+            color: var(--text-sub);
         }
         .stButton > button:hover {
-            border-color: #2563EB;
-            color: #2563EB;
+            border-color: var(--accent);
+            color: var(--accent);
         }
+
+        /* タブの見出し */
+        [data-baseweb="tab"] { font-weight: 600; }
+        [data-baseweb="tab-highlight"] { background-color: var(--accent) !important; }
 
         /* テーブルを少しコンパクトに */
         [data-testid="stDataFrame"] { font-size: 0.9rem; }
 
+        /* 演目メタ情報チップ（タブ1） */
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin: 0.5rem 0 0.2rem;
+        }
+        .meta-chip {
+            font-size: 0.76rem;
+            color: var(--text-sub);
+            background: var(--chip);
+            border-radius: 999px;
+            padding: 0.28rem 0.7rem;
+            font-weight: 600;
+        }
+        .meta-chip b { color: var(--text); font-weight: 800; margin-left: 2px; }
+
+        /* 日付見出し（曜日カラー + 罫線 + 右ヒント） */
+        .day-head {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin: 0.8rem 0 0.7rem;
+        }
+        .day-date {
+            font-size: 1.32rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+        .day-rule { flex: 1; height: 1px; background: var(--border); }
+        .day-count {
+            font-size: 0.76rem;
+            color: var(--text-faint);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
         /* ── カード表示 ── */
         .card-grid {
             display: grid;
-            gap: 0.8rem;
+            gap: 0.85rem;
             margin: 0.4rem 0 1.6rem;
         }
         /* タブ1: 時間枠カード（小さめ） */
@@ -173,26 +254,27 @@ def inject_css():
             grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
         }
         .slot-card, .event-card {
-            border: 1px solid #E2E8F0;
-            border-radius: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
             background: #fff;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+            box-shadow: var(--card-shadow);
             display: flex;
             flex-direction: column;
             transition: box-shadow 0.15s ease, transform 0.15s ease;
         }
         .slot-card:hover, .event-card:hover {
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.10);
+            box-shadow: 0 6px 16px rgba(20, 40, 80, 0.10);
             transform: translateY(-2px);
         }
         .slot-card {
-            padding: 0.85rem 1rem;
-            gap: 0.55rem;
+            padding: 0.9rem 0.95rem;
+            gap: 0.6rem;
         }
         .slot-card .slot-time {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #0F172A;
+            font-size: 1.28rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.01em;
         }
         .event-card {
             padding: 1rem 1.1rem;
@@ -200,22 +282,32 @@ def inject_css():
         }
         .event-card .event-name {
             font-size: 1.02rem;
-            font-weight: 700;
-            color: #0F172A;
+            font-weight: 800;
+            color: var(--text);
             line-height: 1.4;
         }
         .event-card .event-meta {
             font-size: 0.8rem;
-            color: #64748B;
+            color: var(--text-sub);
+            font-weight: 600;
         }
         /* 空き状況バッジ（カード内） */
         .badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             width: fit-content;
-            padding: 0.25rem 0.65rem;
+            padding: 0.25rem 0.6rem;
             border-radius: 999px;
-            font-size: 0.83rem;
-            font-weight: 600;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+        .badge::before {
+            content: "";
+            width: 6px; height: 6px;
+            border-radius: 999px;
+            background: currentColor;
+            opacity: 0.9;
         }
         /* 時間帯チップ群（タブ2） */
         .slot-chips {
@@ -236,42 +328,49 @@ def inject_css():
             flex-wrap: wrap;
             align-items: center;
             gap: 0.4rem;
-            padding: 0.55rem 0.75rem;
+            padding: 0.6rem 0.8rem;
             margin: 0.2rem 0 0.6rem;
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 10px;
+            background: #F6F8FB;
+            border: 1px solid var(--border);
+            border-radius: 12px;
         }
         .excl-banner-label {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 700;
-            color: #64748B;
+            color: var(--text-sub);
             margin-right: 0.2rem;
         }
         .excl-chip {
             display: inline-block;
             padding: 0.2rem 0.6rem;
             border-radius: 999px;
-            font-size: 0.78rem;
+            font-size: 0.77rem;
             font-weight: 600;
-            background: #FEE2E2;
-            color: #991B1B;
+            background: #FDEAEA;
+            color: #CC3B3B;
         }
 
-        /* 予約ボタン（カード内リンク） */
+        /* 予約ボタン（カード内リンク・A:軽い導線） */
         .book-btn {
-            display: block;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-top: auto;
-            padding: 0.5rem 0.8rem;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #2563EB, #4F46E5);
+            padding: 0.48rem 0.8rem;
+            border-radius: 9px;
+            background: var(--accent);
             color: #fff !important;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.84rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
             text-decoration: none;
+            box-shadow: 0 1px 2px rgba(47,111,237,0.25);
+            transition: background 0.12s ease, box-shadow 0.12s ease;
         }
-        .book-btn:hover { opacity: 0.92; }
+        .book-btn:hover {
+            background: var(--accent-strong);
+            box-shadow: 0 2px 8px rgba(47,111,237,0.3);
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -451,13 +550,22 @@ def render_tab_event(group_size, hide_full, excluded):
 
     render_excluded_banner(excluded)
 
-    info = []
+    # 演目メタ情報（チップ表示）
+    meta_chips = []
     if ev.get("type"):
-        info.append(f"種別: **{ev['type']}**")
+        meta_chips.append(("種別", ev["type"]))
     if ev.get("max_team_size"):
-        info.append(f"1チーム最大: **{ev['max_team_size']}人**")
-    info.append(f"残数単位: **{unit}**")
-    st.caption("　".join(info))
+        meta_chips.append(("1チーム最大", f"{ev['max_team_size']}人"))
+    meta_chips.append(("残数単位", unit))
+    st.markdown(
+        '<div class="meta-row">'
+        + "".join(
+            f'<span class="meta-chip">{escape(k)} <b>{escape(v)}</b></span>'
+            for k, v in meta_chips
+        )
+        + "</div>",
+        unsafe_allow_html=True,
+    )
 
     with st.spinner(f"「{ev['event_name']}」の空き状況を確認中..."):
         try:
@@ -499,13 +607,17 @@ def render_tab_event(group_size, hide_full, excluded):
         by_day.setdefault(row["日付"], []).append(row)
 
     for day_label, items in by_day.items():
-        st.markdown(f"#### {day_label}")
+        st.markdown(
+            day_head_html(items[0]["_d"], f"空き {len(items)} 枠"),
+            unsafe_allow_html=True,
+        )
         cards = []
         for it in items:
             badge_style = STATUS_STYLE.get(it["_status"], "")
             url = it["予約"]
             btn = (
-                f'<a class="book-btn" href="{escape(url)}" target="_blank">予約ページ</a>'
+                f'<a class="book-btn" href="{escape(url)}" target="_blank">'
+                f"予約ページ{BOOK_ARROW}</a>"
                 if url
                 else ""
             )
@@ -643,7 +755,10 @@ def render_tab_date(group_size, hide_full, excluded):
             continue
 
         rendered.sort(key=lambda x: x["_rank"])
-        st.subheader(f"{d.month}/{d.day}（{weekday_jp(d)}）")
+        st.markdown(
+            day_head_html(d, f"{len(rendered)} 演目"),
+            unsafe_allow_html=True,
+        )
         cards = []
         for it in rendered:
             chips = "".join(
@@ -658,7 +773,7 @@ def render_tab_date(group_size, hide_full, excluded):
             )
             btn = (
                 f'<a class="book-btn" href="{escape(it["url"])}" target="_blank">'
-                "予約ページ</a>"
+                f"予約ページ{BOOK_ARROW}</a>"
                 if it["url"]
                 else ""
             )
