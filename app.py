@@ -1,4 +1,3 @@
-import base64
 import json
 from datetime import date, timedelta
 from html import escape
@@ -6,6 +5,7 @@ from pathlib import Path
 
 from PIL import Image as PILImage
 import streamlit as st
+import streamlit.components.v1 as components
 
 from scraper import (
     list_events,
@@ -46,8 +46,22 @@ st.set_page_config(
 )
 
 # iPhoneホーム画面アイコン用（apple-touch-icon）
-_icon_b64 = base64.b64encode((Path(__file__).parent / "icon.png").read_bytes()).decode()
-st.html(f'<link rel="apple-touch-icon" href="data:image/png;base64,{_icon_b64}">')
+# iOSはページ<head>内の実URLのlinkしか読まない（body内やdata:URIは不可）。
+# そのためStreamlitの静的配信(/app/static/icon.png)を実URLで親ページのheadに挿入する。
+components.html(
+    """<script>
+    var origin = window.parent.location.origin;
+    var href = origin + '/app/static/icon.png';
+    var doc = window.parent.document;
+    // 既存の同種linkを消してから入れ直す（再実行時の重複防止）
+    doc.querySelectorAll("link[rel='apple-touch-icon']").forEach(function(el){ el.remove(); });
+    var link = doc.createElement('link');
+    link.rel = 'apple-touch-icon';
+    link.href = href;
+    doc.head.appendChild(link);
+    </script>""",
+    height=0,
+)
 
 
 # ── 容量チェック ─────────────────────────────────────────────
