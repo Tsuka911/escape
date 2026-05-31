@@ -61,7 +61,8 @@ _ICON_JS = f"""<script>
 # st.components.v1.html は 2026-06-01 に廃止予定。後継の st.iframe を使う。
 # 手元の古いバージョンには st.iframe が無いため、両対応にしておく。
 if hasattr(st, "iframe"):
-    st.iframe(_ICON_JS, height=0)
+    # st.iframe は height>=1 が必須（0不可）。1pxで実質見えない。
+    st.iframe(_ICON_JS, height=1)
 else:
     import streamlit.components.v1 as components
     components.html(_ICON_JS, height=0)
