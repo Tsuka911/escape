@@ -17,3 +17,6 @@ env/
 # エディタ
 .vscode/
 .idea/
+
+# Claude Code のローカル設定（端末ごと。Git管理しない）
+.claude/
