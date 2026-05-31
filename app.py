@@ -5,7 +5,6 @@ from pathlib import Path
 
 from PIL import Image as PILImage
 import streamlit as st
-import streamlit.components.v1 as components
 
 from scraper import (
     list_events,
@@ -47,11 +46,10 @@ st.set_page_config(
 
 # iPhoneホーム画面アイコン用（apple-touch-icon）
 # iOSはページ<head>内の実URLのlinkしか読まない（body内やdata:URIは不可）。
-# アプリがログイン必須でも取得できるよう、画像は誰でもアクセスできる
-# GitHubの公開URL(raw)から取り、親ページのheadに挿入する。
+# 画像は誰でもアクセスできるGitHubの公開URL(raw)から取り、iframe内のJSで
+# 親ページのheadに挿入する（Streamlitのiframeはallow-same-originなので親操作が可能）。
 _ICON_URL = "https://raw.githubusercontent.com/Tsuka911/escape/main/static/icon.png"
-components.html(
-    f"""<script>
+_ICON_JS = f"""<script>
     var doc = window.parent.document;
     // 既存の同種linkを消してから入れ直す（再実行時の重複防止）
     doc.querySelectorAll("link[rel='apple-touch-icon']").forEach(function(el){{ el.remove(); }});
@@ -59,9 +57,14 @@ components.html(
     link.rel = 'apple-touch-icon';
     link.href = '{_ICON_URL}';
     doc.head.appendChild(link);
-    </script>""",
-    height=0,
-)
+    </script>"""
+# st.components.v1.html は 2026-06-01 に廃止予定。後継の st.iframe を使う。
+# 手元の古いバージョンには st.iframe が無いため、両対応にしておく。
+if hasattr(st, "iframe"):
+    st.iframe(_ICON_JS, height=0)
+else:
+    import streamlit.components.v1 as components
+    components.html(_ICON_JS, height=0)
 
 
 # ── 容量チェック ─────────────────────────────────────────────
