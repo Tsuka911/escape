@@ -4,8 +4,9 @@
 
 名古屋のリアル脱出ゲームのチケット空き状況を確認する Streamlit アプリ。
 
-- デプロイ先: **Streamlit Community Cloud**（Vercel は使わない）
+- デプロイ先: **Streamlit Community Cloud**（Vercel は使わない）。公開URL `https://escapefromtickets.streamlit.app/`
 - ブランチ: `main` のみ。デプロイはプッシュで自動反映
+- **iPhoneホーム画面アイコンは GitHub Pages の入口ページ（`docs/`）で出している**（後述）
 
 ## ファイル構成と役割
 
@@ -15,7 +16,10 @@
 | `scraper.py` | 公式サイトのスクレイピングとチケットAPIの呼び出し |
 | `data/cache.json` | スクレイピング・APIのキャッシュ（git管理外） |
 | `data/user_settings.json` | 除外演目などのユーザー設定（git管理外） |
-| `.streamlit/config.toml` | テーマ（背景 `#F5F7FA`・サイドバー `#FBFCFE`・青アクセント `#2F6FED`） |
+| `.streamlit/config.toml` | テーマ（背景 `#F5F7FA`・サイドバー `#FBFCFE`・青アクセント `#2F6FED`）＋ `enableStaticServing` |
+| `static/icon.png` | 180×180アイコン。`app.py` がGitHub raw URLで参照 |
+| `docs/index.html` | **GitHub Pages の入口ページ**（iPhoneホーム画面アイコン用） |
+| `docs/icon.png` | 入口ページが使うホーム画面アイコン（180×180） |
 
 ## データ取得の仕組み
 
@@ -23,6 +27,23 @@
 - **チケット・空き状況**: `fetch_tickets_for_date()` で公式API（`api.scrapmagazine.com`）を叩く。2時間キャッシュ
 - キャッシュは `data/cache.json` に保存。Streamlit の `@st.cache_data(ttl=7200)` でメモリにも2時間保持
 - **2層キャッシュに注意**: ①Streamlitメモリ（`@st.cache_data`）と ②scraperのファイル（`data/cache.json`）の2層がある。「データを今すぐ更新」ボタンは両方をクリアする必要があるため、`scraper.clear_cache()`（ファイル削除）＋ `st.cache_data.clear()`（メモリ）の両方を呼ぶ。片方だけだと最終更新時刻が変わらない
+
+## iPhoneホーム画面アイコン（重要・ハマりどころ）
+
+- iOS Safariは「ホーム画面に追加」時、**ページを最初に読み込んだHTMLの`<head>`にある`apple-touch-icon`しか読まない**。JSで後から差し込んだものは無視する。
+- そして **Streamlit Cloud はアプリの最初のHTMLの`<head>`を編集させてくれない**。そのため Streamlit 内（`app.py`）でいくら工夫してもiOSアイコンは出せない。
+- 解決策: **GitHub Pages の入口ページ `docs/index.html`** を使う。これは最初のHTMLに`apple-touch-icon`を持ち、standalone起動時はStreamlitアプリへ自動転送する軽量ページ。
+  - GitHub Pages設定: Settings→Pages→`main`ブランチ`/docs`
+  - **ホーム画面に追加するURLは入口ページ** `https://tsuka911.github.io/escape/`（Streamlit直URLではない）
+  - アイコンを変える時は `static/icon.png` と `docs/icon.png` の**両方**を180×180で差し替える
+- `app.py` 側にも`apple-touch-icon`をheadへ挿入するコードがあるが（GitHub raw URL参照）、上記の理由でiOSアイコンには効かない補助的なもの。
+- 試したが効かなかった方法（再挑戦しないこと）: `st.markdown`で`<link>`（除去される）／`data:`URI（iOSが受け付けない）／`st.html`でbodyに挿入（headに入らない）／`/app/static/`配信（Cloudでは画像でなくアプリHTMLが返る）。
+
+## Streamlit APIの廃止注意
+
+- `st.components.v1.html` は **2026-06-01 廃止**。後継は `st.iframe(src, height=...)`（HTML文字列も渡せる）。
+- `st.iframe` の `height` は **1以上が必須**（`0`は`StreamlitInvalidHeightError`）。旧`components.html`は`0`可だったので移行時に注意。
+- `app.py` では `hasattr(st, "iframe")` で新旧両対応にしている（手元の古いバージョンには`st.iframe`が無いため）。
 
 ## 検索から除外される演目
 
