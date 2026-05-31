@@ -9,6 +9,7 @@ from scraper import (
     list_events,
     fetch_schedule,
     get_meta_updated_at,
+    clear_cache,
 )
 
 # ユーザー設定（除外演目など）の保存先
@@ -110,6 +111,7 @@ def inject_css():
     st.markdown(
         """
         <style>
+        @import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap');
         :root {
             --accent: #2F6FED;
             --accent-strong: #2862D8;
@@ -120,15 +122,38 @@ def inject_css():
             --border-soft: #E3E8EF;
             --chip: #EEF2F7;
             --card-shadow: 0 1px 2px rgba(20,40,80,0.05), 0 4px 14px rgba(20,40,80,0.04);
+            --app-font: "Zen Kaku Gothic New", -apple-system, BlinkMacSystemFont,
+                "Hiragino Sans", "Noto Sans JP", sans-serif;
         }
-        html, body, [class*="css"] {
-            font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans",
-                "Noto Sans JP", sans-serif;
+        /* アプリ全体に Zen Kaku Gothic New を適用（Streamlit生成要素も対象） */
+        html, body, [class*="css"],
+        [data-testid="stSidebar"], [data-testid="stAppViewContainer"],
+        button, input, select, textarea {
+            font-family: var(--app-font);
+        }
+        /* st.markdown で描いたカスタムHTML（日付見出し・時刻・演目名・チップ等）にだけ
+           明示指定。Streamlit既定フォント(Source Sans)を上書きする。
+           ※ 全要素(*)には当てない。Material Symbolsアイコン用フォントまで
+              上書きしてしまい、アイコンが文字名で表示されるのを防ぐため。 */
+        .app-header, .app-header .title, .app-header .sub,
+        .day-head, .day-date, .day-count,
+        .slot-card, .slot-time, .event-card, .event-name, .event-meta,
+        .badge, .chip, .meta-row, .meta-chip,
+        .excl-banner, .excl-banner-label, .excl-chip, .book-btn {
+            font-family: var(--app-font) !important;
         }
         /* 上部のStreamlitツールバー（Deployメニュー）の帯を背景透明にし、
            その高さ分の余白を確保してタイトルが隠れないようにする */
         [data-testid="stHeader"] {
             background: transparent;
+        }
+        /* ── メイン背景色（A:クリーン の page=#F5F7FA / サイドバー=#FBFCFE）── */
+        [data-testid="stAppViewContainer"], .stApp, [data-testid="stMain"] {
+            background: #F5F7FA;
+        }
+        [data-testid="stSidebar"] {
+            background: #FBFCFE;
+            border-right: 1px solid var(--border);
         }
         .block-container {
             padding-top: 4rem;
@@ -179,7 +204,81 @@ def inject_css():
             margin-top: 3px;
         }
 
-        /* サイドバーのボタンを軽いタグ風に */
+        /* ── サイドバーをモック（A:クリーン）風に寄せる ── */
+        /* 見出し「設定」 */
+        [data-testid="stSidebar"] [data-testid="stSubheader"],
+        [data-testid="stSidebar"] h3 {
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+        /* 入力ラベル */
+        [data-testid="stSidebar"] label p {
+            font-weight: 600;
+            color: var(--text-sub);
+            font-size: 0.8rem;
+        }
+        /* 数値入力（参加人数）— 枠とステッパーをカード風に */
+        [data-testid="stSidebar"] [data-testid="stNumberInput"] > div > div {
+            border-radius: 9px;
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            overflow: hidden;
+        }
+        [data-testid="stSidebar"] [data-testid="stNumberInput"] input {
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+        /* ＋／− ステッパーボタンをアクセント寄りに */
+        [data-testid="stSidebar"] [data-testid="stNumberInputStepUp"],
+        [data-testid="stSidebar"] [data-testid="stNumberInputStepDown"] {
+            color: var(--accent);
+        }
+        [data-testid="stSidebar"] [data-testid="stNumberInputStepUp"]:hover,
+        [data-testid="stSidebar"] [data-testid="stNumberInputStepDown"]:hover {
+            background: var(--chip);
+        }
+        /* チェックボックス（満員の枠を非表示）チェック時アクセント */
+        [data-testid="stSidebar"] [data-baseweb="checkbox"] [data-checked="true"] {
+            background-color: var(--accent) !important;
+            border-color: var(--accent) !important;
+        }
+        /* ポップオーバー起動ボタン（演目を選ぶ）をフィールド風の白枠に */
+        [data-testid="stSidebar"] [data-testid="stPopover"] > div > button {
+            width: 100%;
+            justify-content: space-between;
+            border-radius: 9px;
+            border: 1px solid var(--border-soft);
+            background: #fff;
+            color: var(--text);
+            font-weight: 600;
+            padding: 0.55rem 0.8rem;
+        }
+        [data-testid="stSidebar"] [data-testid="stPopover"] > div > button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        /* 「データを今すぐ更新」ボタン — サイドバー内はアクセント塗りに */
+        [data-testid="stSidebar"] .stButton > button {
+            width: 100%;
+            border-radius: 9px;
+            background: var(--chip);
+            border: 1px solid var(--border-soft);
+            color: var(--text);
+            font-weight: 700;
+        }
+        [data-testid="stSidebar"] .stButton > button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: #fff;
+        }
+        /* キャプション（最終更新など） */
+        [data-testid="stSidebar"] [data-testid="stCaptionContainer"] {
+            color: var(--text-faint);
+        }
+
+        /* メイン側のボタンを軽いタグ風に（タブ2のクイック選択など） */
         .stButton > button {
             border-radius: 999px;
             padding: 0.2rem 0.9rem;
@@ -435,7 +534,8 @@ def main():
             st.caption(f"演目情報の最終更新: {updated}")
         st.caption("空き状況は2時間キャッシュされます")
         if st.button("データを今すぐ更新", icon=":material/refresh:"):
-            st.cache_data.clear()
+            clear_cache()          # scraperのファイルキャッシュ(data/cache.json)を削除
+            st.cache_data.clear()  # Streamlitのメモリキャッシュをクリア
             st.rerun()
 
     tab1, tab2 = st.tabs(

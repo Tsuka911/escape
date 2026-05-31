@@ -15,13 +15,14 @@
 | `scraper.py` | 公式サイトのスクレイピングとチケットAPIの呼び出し |
 | `data/cache.json` | スクレイピング・APIのキャッシュ（git管理外） |
 | `data/user_settings.json` | 除外演目などのユーザー設定（git管理外） |
-| `.streamlit/config.toml` | テーマ（白ベース・青アクセント） |
+| `.streamlit/config.toml` | テーマ（背景 `#F5F7FA`・サイドバー `#FBFCFE`・青アクセント `#2F6FED`） |
 
 ## データ取得の仕組み
 
 - **演目メタ情報**（種別・最大人数・随時スタート判定）: `fetch_event_meta()` で公式サイトをスクレイピング。24時間キャッシュ
 - **チケット・空き状況**: `fetch_tickets_for_date()` で公式API（`api.scrapmagazine.com`）を叩く。2時間キャッシュ
 - キャッシュは `data/cache.json` に保存。Streamlit の `@st.cache_data(ttl=7200)` でメモリにも2時間保持
+- **2層キャッシュに注意**: ①Streamlitメモリ（`@st.cache_data`）と ②scraperのファイル（`data/cache.json`）の2層がある。「データを今すぐ更新」ボタンは両方をクリアする必要があるため、`scraper.clear_cache()`（ファイル削除）＋ `st.cache_data.clear()`（メモリ）の両方を呼ぶ。片方だけだと最終更新時刻が変わらない
 
 ## 検索から除外される演目
 
@@ -44,9 +45,19 @@ EXCLUDE_TITLE_KEYWORDS = ("街歩き",)
 
 ## デザイン方針
 
+「A:クリーン」トーンで統一（白×青の洗練版）。Claude Design でトーン比較して決定した方向。
+
 - 絵文字は使わない。アイコンは Material Symbols（`:material/xxx:`）か SVG で統一
-- カード表示: `.slot-card`（タブ1の時間枠）、`.event-card`（タブ2の演目）
-- 空き状況バッジ: 緑（ok）・黄（warn）・赤（full）・グレー（unknown）
+- フォントは **Zen Kaku Gothic New**（Google Fonts を `@import`）。CSS変数 `--app-font` で管理
+  - **注意**: `st.markdown` で描いたカスタムHTML（日付見出し・時刻・演目名・バッジ等）はStreamlit既定フォント(Source Sans)に上書きされるため、それらのクラスにだけ `font-family: var(--app-font) !important` を当てている
+  - **`*`（全要素）には当てない**。Material Symbols のアイコン専用フォントまで上書きしてしまい、アイコンが文字名（例: `theater_comedy`）で表示されてしまうため
+- カラートークンは `:root` のCSS変数で管理（`--accent: #2F6FED` 等）
+- カード表示: `.slot-card`（タブ1の時間枠）、`.event-card`（タブ2の演目）。角丸12・軽いシャドウ
+- 空き状況バッジ: 緑（ok）・黄（warn）・赤（full）・グレー（unknown）。左に状態ドット（`::before`）。`warn` は色のみで表現しテキストは「残りN人」（「N人には不足」は付けない）
+- 日付見出し `day_head_html()`: 曜日カラー（土=青 / 日=赤）＋罫線＋右側に「空きN枠 / N演目」。タブ1/2共通
+- 予約ボタン `.book-btn`: 単色アクセント＋外部リンク矢印SVG（`BOOK_ARROW`）
+- 演目メタ情報はチップ表示（`.meta-row` / `.meta-chip`）
+- サイドバーは Streamlit 標準ウィジェットを `data-testid` セレクタでモック風に寄せている（人数ステッパー・チェックボックス・ポップオーバー・更新ボタン）。完全一致はできず、Streamlitバージョンで `data-testid` が変わると一部効かなくなる点に注意
 - `inject_css()` に全カスタムCSSをまとめている
 
 ## 将来の予定

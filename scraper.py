@@ -44,6 +44,16 @@ def save_cache(data: dict) -> None:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+def clear_cache() -> None:
+    """スクレイピング・APIのキャッシュファイルを削除して、次回取得を強制する。
+    「データを今すぐ更新」ボタンから呼ばれる。"""
+    try:
+        if os.path.exists(CACHE_FILE):
+            os.remove(CACHE_FILE)
+    except Exception:
+        pass
+
+
 def _is_valid(cache: dict, key: str, hours: float) -> bool:
     ts = cache.get(f"{key}_updated_at")
     if not ts:
