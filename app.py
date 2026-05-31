@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from html import escape
 from pathlib import Path
 
+from PIL import Image as PILImage
 import streamlit as st
 
 from scraper import (
@@ -36,9 +37,10 @@ def save_excluded_events(names: list) -> None:
     except Exception as e:
         st.warning(f"除外設定の保存に失敗しました: {e}")
 
+_icon = PILImage.open(Path(__file__).parent / "icon.png")
 st.set_page_config(
     page_title="リアル脱出ゲーム 名古屋 検索",
-    page_icon=":material/vpn_key:",
+    page_icon=_icon,
     layout="wide",
 )
 
