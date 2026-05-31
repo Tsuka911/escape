@@ -1,6 +1,6 @@
 from datetime import date, timedelta
+from html import escape
 
-import pandas as pd
 import streamlit as st
 
 from scraper import (
@@ -65,8 +65,13 @@ def inject_css():
             font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans",
                 "Noto Sans JP", sans-serif;
         }
+        /* 上部のStreamlitツールバー（Deployメニュー）の帯を背景透明にし、
+           その高さ分の余白を確保してタイトルが隠れないようにする */
+        [data-testid="stHeader"] {
+            background: transparent;
+        }
         .block-container {
-            padding-top: 1.5rem;
+            padding-top: 4rem;
             padding-bottom: 3rem;
             max-width: 1100px;
         }
@@ -74,7 +79,7 @@ def inject_css():
             .block-container {
                 padding-left: 0.8rem;
                 padding-right: 0.8rem;
-                padding-top: 1rem;
+                padding-top: 3.5rem;
             }
         }
         /* カスタムヘッダー */
@@ -126,6 +131,93 @@ def inject_css():
 
         /* テーブルを少しコンパクトに */
         [data-testid="stDataFrame"] { font-size: 0.9rem; }
+
+        /* ── カード表示 ── */
+        .card-grid {
+            display: grid;
+            gap: 0.8rem;
+            margin: 0.4rem 0 1.6rem;
+        }
+        /* タブ1: 時間枠カード（小さめ） */
+        .grid-slots {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+        /* タブ2: 演目カード（大きめ） */
+        .grid-events {
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        }
+        .slot-card, .event-card {
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.15s ease, transform 0.15s ease;
+        }
+        .slot-card:hover, .event-card:hover {
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.10);
+            transform: translateY(-2px);
+        }
+        .slot-card {
+            padding: 0.85rem 1rem;
+            gap: 0.55rem;
+        }
+        .slot-card .slot-time {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0F172A;
+        }
+        .event-card {
+            padding: 1rem 1.1rem;
+            gap: 0.65rem;
+        }
+        .event-card .event-name {
+            font-size: 1.02rem;
+            font-weight: 700;
+            color: #0F172A;
+            line-height: 1.4;
+        }
+        .event-card .event-meta {
+            font-size: 0.8rem;
+            color: #64748B;
+        }
+        /* 空き状況バッジ（カード内） */
+        .badge {
+            display: inline-block;
+            width: fit-content;
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.83rem;
+            font-weight: 600;
+        }
+        /* 時間帯チップ群（タブ2） */
+        .slot-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .chip {
+            display: inline-block;
+            padding: 0.22rem 0.55rem;
+            border-radius: 8px;
+            font-size: 0.79rem;
+            font-weight: 600;
+        }
+        /* 予約ボタン（カード内リンク） */
+        .book-btn {
+            display: block;
+            text-align: center;
+            margin-top: auto;
+            padding: 0.5rem 0.8rem;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #2563EB, #4F46E5);
+            color: #fff !important;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .book-btn:hover { opacity: 0.92; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -284,24 +376,35 @@ def render_tab_event(group_size, hide_full):
         return
 
     table_rows.sort(key=lambda x: (x["_d"], x["時刻"]))
-    df = pd.DataFrame(table_rows)
 
-    # 「空き状況」セルを状態（ok/warn/full）に応じて色付け
-    def color_status(_col):
-        return [STATUS_STYLE.get(s, "") for s in df["_status"]]
+    # 日付ごとにグループ化し、時間枠をカードで表示
+    by_day = {}
+    for row in table_rows:
+        by_day.setdefault(row["日付"], []).append(row)
 
-    styled = df[["日付", "時刻", "空き状況", "予約"]].style.apply(
-        color_status, subset=["空き状況"]
-    )
-    st.dataframe(
-        styled,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "予約": st.column_config.LinkColumn("予約リンク", display_text="予約ページ"),
-        },
-    )
-    st.caption(f"{len(df)} 件表示")
+    for day_label, items in by_day.items():
+        st.markdown(f"#### {day_label}")
+        cards = []
+        for it in items:
+            badge_style = STATUS_STYLE.get(it["_status"], "")
+            url = it["予約"]
+            btn = (
+                f'<a class="book-btn" href="{escape(url)}" target="_blank">予約ページ</a>'
+                if url
+                else ""
+            )
+            cards.append(
+                '<div class="slot-card">'
+                f'<div class="slot-time">{escape(it["時刻"])}</div>'
+                f'<span class="badge" style="{badge_style}">{escape(it["空き状況"])}</span>'
+                f"{btn}"
+                "</div>"
+            )
+        st.markdown(
+            f'<div class="card-grid grid-slots">{"".join(cards)}</div>',
+            unsafe_allow_html=True,
+        )
+    st.caption(f"{len(table_rows)} 件表示")
 
 
 def render_tab_date(group_size, hide_full):
@@ -387,31 +490,35 @@ def render_tab_date(group_size, hide_full):
         rendered = []
         for r in day_rows:
             unit = r["order_unit"]
-            slot_labels = []
+            slots_info = []
             ranks = []
             for s in r["slots"]:
                 status, _text = capacity_status(s["stock"], unit, group_size)
                 ranks.append(STATUS_RANK[status])
                 if hide_full and (s["stock"] == 0):
                     continue
-                # 時刻 + 状況（簡潔に: ○=余裕 △=不足の可能性 ×=満員）
+                # 記号 + 時刻 + 残数（○=余裕 △=不足の可能性 ×=満員）
                 mark = STATUS_MARK[status]
                 stock_str = "満" if s["stock"] == 0 else f"{s['stock']}{unit}"
-                slot_labels.append(f"{mark}{s['time']}({stock_str})")
+                slots_info.append(
+                    {"label": f"{mark} {s['time']}（{stock_str}）", "status": status}
+                )
 
-            if not slot_labels:
+            if not slots_info:
                 continue
 
             best_rank = min(ranks) if ranks else 3
-            type_str = r["type"] or "－"
-            size_str = f"{r['max_team_size']}人" if r["max_team_size"] else "－"
+            meta_parts = []
+            if r["type"]:
+                meta_parts.append(r["type"])
+            if r["max_team_size"]:
+                meta_parts.append(f"最大{r['max_team_size']}人")
             rendered.append(
                 {
-                    "演目": r["event_name"],
-                    "種別": type_str,
-                    "最大人数": size_str,
-                    "空き時間帯": "　".join(slot_labels),
-                    "予約": r.get("tickets_url") or "",
+                    "event_name": r["event_name"],
+                    "meta": " ・ ".join(meta_parts),
+                    "slots": slots_info,
+                    "url": r.get("tickets_url") or "",
                     "_rank": best_rank,
                 }
             )
@@ -421,14 +528,35 @@ def render_tab_date(group_size, hide_full):
 
         rendered.sort(key=lambda x: x["_rank"])
         st.subheader(f"{d.month}/{d.day}（{weekday_jp(d)}）")
-        df = pd.DataFrame(rendered)[["演目", "種別", "最大人数", "空き時間帯", "予約"]]
-        st.dataframe(
-            df,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "予約": st.column_config.LinkColumn("予約", display_text="一覧"),
-            },
+        cards = []
+        for it in rendered:
+            chips = "".join(
+                f'<span class="chip" style="{STATUS_STYLE.get(si["status"], "")}">'
+                f'{escape(si["label"])}</span>'
+                for si in it["slots"]
+            )
+            meta_html = (
+                f'<div class="event-meta">{escape(it["meta"])}</div>'
+                if it["meta"]
+                else ""
+            )
+            btn = (
+                f'<a class="book-btn" href="{escape(it["url"])}" target="_blank">'
+                "予約ページ</a>"
+                if it["url"]
+                else ""
+            )
+            cards.append(
+                '<div class="event-card">'
+                f'<div class="event-name">{escape(it["event_name"])}</div>'
+                f"{meta_html}"
+                f'<div class="slot-chips">{chips}</div>'
+                f"{btn}"
+                "</div>"
+            )
+        st.markdown(
+            f'<div class="card-grid grid-events">{"".join(cards)}</div>',
+            unsafe_allow_html=True,
         )
 
 
