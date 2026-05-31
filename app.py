@@ -375,9 +375,11 @@ def render_exclude_setting(excluded):
     selected = []
     with st.popover(label, icon=":material/filter_alt:", use_container_width=True):
         st.caption("検索結果から外したい演目にチェック")
-        for name in options:
-            if st.checkbox(name, value=(name in excluded_set), key=f"excl_{name}"):
-                selected.append(name)
+        # 演目が多くてもポップアップが画面外に伸びないよう、高さ固定のスクロール領域に入れる
+        with st.container(height=300):
+            for name in options:
+                if st.checkbox(name, value=(name in excluded_set), key=f"excl_{name}"):
+                    selected.append(name)
 
     # 選択が変わったときだけ保存
     if set(selected) != excluded_set:
