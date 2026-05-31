@@ -47,17 +47,17 @@ st.set_page_config(
 
 # iPhoneホーム画面アイコン用（apple-touch-icon）
 # iOSはページ<head>内の実URLのlinkしか読まない（body内やdata:URIは不可）。
-# そのためStreamlitの静的配信(/app/static/icon.png)を実URLで親ページのheadに挿入する。
+# アプリがログイン必須でも取得できるよう、画像は誰でもアクセスできる
+# GitHubの公開URL(raw)から取り、親ページのheadに挿入する。
+_ICON_URL = "https://raw.githubusercontent.com/Tsuka911/escape/main/static/icon.png"
 components.html(
-    """<script>
-    var origin = window.parent.location.origin;
-    var href = origin + '/app/static/icon.png';
+    f"""<script>
     var doc = window.parent.document;
     // 既存の同種linkを消してから入れ直す（再実行時の重複防止）
-    doc.querySelectorAll("link[rel='apple-touch-icon']").forEach(function(el){ el.remove(); });
+    doc.querySelectorAll("link[rel='apple-touch-icon']").forEach(function(el){{ el.remove(); }});
     var link = doc.createElement('link');
     link.rel = 'apple-touch-icon';
-    link.href = href;
+    link.href = '{_ICON_URL}';
     doc.head.appendChild(link);
     </script>""",
     height=0,
