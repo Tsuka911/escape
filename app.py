@@ -1,5 +1,7 @@
+import json
 from datetime import date, timedelta
 from html import escape
+from pathlib import Path
 
 import streamlit as st
 
@@ -8,6 +10,30 @@ from scraper import (
     fetch_schedule,
     get_meta_updated_at,
 )
+
+# ユーザー設定（除外演目など）の保存先
+SETTINGS_PATH = Path(__file__).parent / "data" / "user_settings.json"
+
+
+def load_excluded_events() -> list:
+    """除外する演目名のリストをファイルから読み込む（無ければ空リスト）"""
+    try:
+        data = json.loads(SETTINGS_PATH.read_text(encoding="utf-8"))
+        return list(data.get("excluded_events", []))
+    except Exception:
+        return []
+
+
+def save_excluded_events(names: list) -> None:
+    """除外する演目名のリストをファイルに保存する"""
+    try:
+        SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        SETTINGS_PATH.write_text(
+            json.dumps({"excluded_events": names}, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    except Exception as e:
+        st.warning(f"除外設定の保存に失敗しました: {e}")
 
 st.set_page_config(
     page_title="リアル脱出ゲーム 名古屋 検索",
@@ -264,12 +290,17 @@ def main():
     inject_css()
     render_header()
 
+    excluded = load_excluded_events()
+
     with st.sidebar:
         st.subheader(":material/tune: 設定")
         group_size = st.number_input(
             "参加予定人数", min_value=1, max_value=20, value=4, step=1
         )
         hide_full = st.checkbox("満員の枠を非表示", value=True)
+
+        st.markdown("---")
+        excluded = render_exclude_setting(excluded)
 
         st.markdown("---")
         updated = get_meta_updated_at()
@@ -286,20 +317,56 @@ def main():
 
     # ── タブ1: 演目から探す ──────────────────────────────────
     with tab1:
-        render_tab_event(group_size, hide_full)
+        render_tab_event(group_size, hide_full, excluded)
 
     # ── タブ2: 日付から探す ──────────────────────────────────
     with tab2:
-        render_tab_date(group_size, hide_full)
+        render_tab_date(group_size, hide_full, excluded)
 
 
-def render_tab_event(group_size, hide_full):
+def render_exclude_setting(excluded):
+    """サイドバーの「検索から除外する演目」設定。選択結果（除外する演目名リスト）を返す。"""
+    st.caption(":material/filter_alt: 検索から除外する演目")
+
+    # 選択肢は現在取得できる全演目名。過去に除外したが今は一覧に無い名前も残す
+    try:
+        all_names = sorted({e["event_name"] for e in get_event_list()})
+    except Exception:
+        all_names = []
+    options = sorted(set(all_names) | set(excluded))
+
+    if not options:
+        st.caption("演目を読み込めませんでした。")
+        return excluded
+
+    selected = st.multiselect(
+        "除外する演目を選ぶ",
+        options=options,
+        default=[n for n in excluded if n in options],
+        placeholder="除外したい演目を選択",
+        label_visibility="collapsed",
+    )
+
+    # 選択が変わったときだけ保存
+    if set(selected) != set(excluded):
+        save_excluded_events(selected)
+        st.toast("除外設定を保存しました")
+
+    if selected:
+        st.caption(f"{len(selected)} 件を検索から除外中")
+    return selected
+
+
+def render_tab_event(group_size, hide_full, excluded):
     with st.spinner("演目一覧を読み込み中..."):
         try:
             events = get_event_list()
         except Exception as e:
             st.error(f"演目一覧の取得に失敗しました: {e}")
             return
+
+    # サイドバーで除外指定された演目を選択肢から外す
+    events = [e for e in events if e["event_name"] not in set(excluded)]
 
     if not events:
         st.warning("演目が見つかりませんでした。")
@@ -407,7 +474,7 @@ def render_tab_event(group_size, hide_full):
     st.caption(f"{len(table_rows)} 件表示")
 
 
-def render_tab_date(group_size, hide_full):
+def render_tab_date(group_size, hide_full, excluded):
     today = date.today()
 
     def next_sat(offset_weeks: int = 0) -> date:
@@ -421,31 +488,25 @@ def render_tab_date(group_size, hide_full):
     # ボタン処理はwidget生成より前に実行する必要があるため quick_row を先に書く
     with quick_row:
         st.caption("クイック選択（土曜日をセット）")
-        lb_s, b_s1, b_s2, b_s3, _sp, lb_e, b_e1, b_e2, b_e3 = st.columns(
-            [0.8, 1, 1, 1.1, 0.4, 0.8, 1, 1, 1.1]
+        lb_s, b_s1, b_s2, _sp, lb_e, b_e1, b_e2 = st.columns(
+            [0.8, 1, 1, 0.4, 0.8, 1, 1]
         )
         with lb_s:
             st.caption("開始日")
         with b_s1:
-            if st.button("今週土", key="qs_s1"):
+            if st.button("今週", key="qs_s1"):
                 st.session_state["t2_s"] = next_sat(0)
         with b_s2:
-            if st.button("来週土", key="qs_s2"):
+            if st.button("来週", key="qs_s2"):
                 st.session_state["t2_s"] = next_sat(1)
-        with b_s3:
-            if st.button("再来週土", key="qs_s3"):
-                st.session_state["t2_s"] = next_sat(2)
         with lb_e:
             st.caption("終了日")
         with b_e1:
-            if st.button("今週土", key="qs_e1"):
+            if st.button("今週", key="qs_e1"):
                 st.session_state["t2_e"] = next_sat(0)
         with b_e2:
-            if st.button("来週土", key="qs_e2"):
+            if st.button("来週", key="qs_e2"):
                 st.session_state["t2_e"] = next_sat(1)
-        with b_e3:
-            if st.button("再来週土", key="qs_e3"):
-                st.session_state["t2_e"] = next_sat(2)
 
     with date_row:
         c1, c2, c3 = st.columns([2, 2, 2])
@@ -473,9 +534,12 @@ def render_tab_date(group_size, hide_full):
             st.error(f"データ取得に失敗しました: {e}")
             return
 
-    # 日付ごとにグループ化
+    # 日付ごとにグループ化（除外指定された演目は外す）
+    excluded_set = set(excluded)
     by_date = {}
     for r in rows:
+        if r["event_name"] in excluded_set:
+            continue
         by_date.setdefault(r["date"], []).append(r)
 
     if not by_date:
