@@ -6,6 +6,7 @@ from pathlib import Path
 
 from PIL import Image as PILImage
 import streamlit as st
+import streamlit.components.v1 as components
 
 from scraper import (
     list_events,
@@ -46,10 +47,16 @@ st.set_page_config(
 )
 
 # iPhoneホーム画面アイコン用（apple-touch-icon）
+# st.markdownではlinkタグが除去されるため、JSで親ページのheadに直接挿入する
 _icon_b64 = base64.b64encode((Path(__file__).parent / "icon.png").read_bytes()).decode()
-st.markdown(
-    f'<link rel="apple-touch-icon" href="data:image/png;base64,{_icon_b64}">',
-    unsafe_allow_html=True,
+components.html(
+    f"""<script>
+    var link = window.parent.document.createElement('link');
+    link.rel = 'apple-touch-icon';
+    link.href = 'data:image/png;base64,{_icon_b64}';
+    window.parent.document.head.appendChild(link);
+    </script>""",
+    height=0,
 )
 
 
