@@ -1,7 +1,9 @@
 import re
 import json
 import os
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
+
+JST = timezone(timedelta(hours=9))
 from typing import Optional
 
 import requests
@@ -58,7 +60,10 @@ def _is_valid(cache: dict, key: str, hours: float) -> bool:
     ts = cache.get(f"{key}_updated_at")
     if not ts:
         return False
-    return (datetime.now() - datetime.fromisoformat(ts)).total_seconds() < hours * 3600
+    try:
+        return (datetime.now(JST) - datetime.fromisoformat(ts)).total_seconds() < hours * 3600
+    except TypeError:
+        return False
 
 
 # ── 演目メタ情報（一覧ページHTMLから）───────────────────────
@@ -143,7 +148,7 @@ def fetch_event_meta(force: bool = False) -> dict:
 
     result = {"by_url": by_url, "by_title": by_title}
     cache["meta"] = result
-    cache["meta_updated_at"] = datetime.now().isoformat()
+    cache["meta_updated_at"] = datetime.now(JST).isoformat()
     save_cache(cache)
     return result
 
@@ -205,7 +210,7 @@ def fetch_tickets_for_date(date_str: str, force: bool = False) -> list:
         page += 1
 
     cache[key] = events
-    cache[f"{key}_updated_at"] = datetime.now().isoformat()
+    cache[f"{key}_updated_at"] = datetime.now(JST).isoformat()
     save_cache(cache)
     return events
 
