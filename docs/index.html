@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>リアル脱出ゲーム 名古屋 空き状況</title>
+
+  <!-- iPhoneホーム画面アイコン。最初のHTMLに置くことでiOSが確実に認識する -->
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/png" href="icon.png">
+
+  <!-- ホーム画面追加時の表示名・挙動 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="脱出空き状況">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#2F6FED">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+      background: #F5F7FA;
+      color: #1A2230;
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+    .box { text-align: center; padding: 24px; }
+    .box img {
+      width: 96px; height: 96px; border-radius: 22px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+    }
+    .box h1 { font-size: 17px; margin: 16px 0 4px; }
+    .box p { color: #5b6573; font-size: 13px; margin: 0 0 20px; }
+    .btn {
+      display: inline-block; background: #2F6FED; color: #fff;
+      text-decoration: none; padding: 12px 24px; border-radius: 10px;
+      font-size: 15px; font-weight: 600;
+    }
+  </style>
+
+  <script>
+    var APP_URL = "https://escapefromtickets.streamlit.app/";
+    // ホーム画面アイコンから起動した場合（standalone）は、すぐアプリへ転送。
+    // 通常のSafari閲覧中（＝ホーム画面に追加する場面）は転送せず、このページを表示する。
+    if (window.navigator.standalone === true) {
+      window.location.replace(APP_URL);
+    }
+  </script>
+</head>
+<body>
+  <div class="box">
+    <img src="icon.png" alt="アイコン">
+    <h1>リアル脱出ゲーム 名古屋 空き状況</h1>
+    <p>下のボタンから開きます</p>
+    <a class="btn" href="https://escapefromtickets.streamlit.app/">空き状況を開く</a>
+  </div>
+</body>
+</html>
