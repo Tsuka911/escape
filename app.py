@@ -1,3 +1,4 @@
+import base64
 import json
 from datetime import date, timedelta
 from html import escape
@@ -42,6 +43,13 @@ st.set_page_config(
     page_title="リアル脱出ゲーム 名古屋 検索",
     page_icon=_icon,
     layout="wide",
+)
+
+# iPhoneホーム画面アイコン用（apple-touch-icon）
+_icon_b64 = base64.b64encode((Path(__file__).parent / "icon.png").read_bytes()).decode()
+st.markdown(
+    f'<link rel="apple-touch-icon" href="data:image/png;base64,{_icon_b64}">',
+    unsafe_allow_html=True,
 )
 
 
