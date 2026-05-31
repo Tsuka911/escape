@@ -230,6 +230,34 @@ def inject_css():
             font-size: 0.79rem;
             font-weight: 600;
         }
+        /* 除外中バナー（main側） */
+        .excl-banner {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.55rem 0.75rem;
+            margin: 0.2rem 0 0.6rem;
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+        }
+        .excl-banner-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #64748B;
+            margin-right: 0.2rem;
+        }
+        .excl-chip {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+
         /* 予約ボタン（カード内リンク） */
         .book-btn {
             display: block;
@@ -325,7 +353,8 @@ def main():
 
 
 def render_exclude_setting(excluded):
-    """サイドバーの「検索から除外する演目」設定。選択結果（除外する演目名リスト）を返す。"""
+    """サイドバーの「検索から除外する演目」設定。
+    ポップアップ内に全演目のチェックボックスを並べ、選択結果（除外する演目名リスト）を返す。"""
     st.caption(":material/filter_alt: 検索から除外する演目")
 
     # 選択肢は現在取得できる全演目名。過去に除外したが今は一覧に無い名前も残す
@@ -339,22 +368,38 @@ def render_exclude_setting(excluded):
         st.caption("演目を読み込めませんでした。")
         return excluded
 
-    selected = st.multiselect(
-        "除外する演目を選ぶ",
-        options=options,
-        default=[n for n in excluded if n in options],
-        placeholder="除外したい演目を選択",
-        label_visibility="collapsed",
+    label = (
+        f"演目を選ぶ（{len(excluded)}件 除外中）" if excluded else "演目を選ぶ"
     )
+    excluded_set = set(excluded)
+    selected = []
+    with st.popover(label, icon=":material/filter_alt:", use_container_width=True):
+        st.caption("検索結果から外したい演目にチェック")
+        for name in options:
+            if st.checkbox(name, value=(name in excluded_set), key=f"excl_{name}"):
+                selected.append(name)
 
     # 選択が変わったときだけ保存
-    if set(selected) != set(excluded):
+    if set(selected) != excluded_set:
         save_excluded_events(selected)
         st.toast("除外設定を保存しました")
 
-    if selected:
-        st.caption(f"{len(selected)} 件を検索から除外中")
     return selected
+
+
+def render_excluded_banner(excluded):
+    """main側で、現在除外中の演目を見やすく一覧表示する"""
+    if not excluded:
+        return
+    chips = "".join(
+        f'<span class="excl-chip">{escape(name)}</span>' for name in excluded
+    )
+    st.markdown(
+        f'<div class="excl-banner">'
+        f'<span class="excl-banner-label">除外中（{len(excluded)}件）</span>'
+        f"{chips}</div>",
+        unsafe_allow_html=True,
+    )
 
 
 def render_tab_event(group_size, hide_full, excluded):
@@ -401,6 +446,8 @@ def render_tab_event(group_size, hide_full, excluded):
     if start_d > end_d:
         st.warning("開始日が終了日より後になっています。")
         return
+
+    render_excluded_banner(excluded)
 
     info = []
     if ev.get("type"):
@@ -488,24 +535,25 @@ def render_tab_date(group_size, hide_full, excluded):
     # ボタン処理はwidget生成より前に実行する必要があるため quick_row を先に書く
     with quick_row:
         st.caption("クイック選択（土曜日をセット）")
-        lb_s, b_s1, b_s2, _sp, lb_e, b_e1, b_e2 = st.columns(
-            [0.8, 1, 1, 0.4, 0.8, 1, 1]
+        # 開始日グループ／終了日グループを左寄せで詰め、余ったスペースは末尾にまとめる
+        lb_s, b_s1, b_s2, lb_e, b_e1, b_e2, _sp = st.columns(
+            [0.7, 0.8, 0.8, 0.7, 0.8, 0.8, 1.4], gap="small"
         )
         with lb_s:
             st.caption("開始日")
         with b_s1:
-            if st.button("今週", key="qs_s1"):
+            if st.button("今週", key="qs_s1", use_container_width=True):
                 st.session_state["t2_s"] = next_sat(0)
         with b_s2:
-            if st.button("来週", key="qs_s2"):
+            if st.button("来週", key="qs_s2", use_container_width=True):
                 st.session_state["t2_s"] = next_sat(1)
         with lb_e:
             st.caption("終了日")
         with b_e1:
-            if st.button("今週", key="qs_e1"):
+            if st.button("今週", key="qs_e1", use_container_width=True):
                 st.session_state["t2_e"] = next_sat(0)
         with b_e2:
-            if st.button("来週", key="qs_e2"):
+            if st.button("来週", key="qs_e2", use_container_width=True):
                 st.session_state["t2_e"] = next_sat(1)
 
     with date_row:
@@ -520,6 +568,8 @@ def render_tab_date(group_size, hide_full, excluded):
     if start_d > end_d:
         st.warning("開始日が終了日より後になっています。")
         return
+
+    render_excluded_banner(excluded)
 
     st.markdown("---")
     st.caption(
