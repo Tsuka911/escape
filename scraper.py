@@ -138,6 +138,15 @@ def fetch_event_meta(force: bool = False) -> dict:
     return result
 
 
+# 検索対象から外す演目（タイトルに含まれていたら除外するキーワード）
+EXCLUDE_TITLE_KEYWORDS = ("街歩き",)
+
+
+def is_excluded_title(event_name: str) -> bool:
+    """演目名に除外キーワード（街歩き 等）が含まれていればTrue"""
+    return any(kw in (event_name or "") for kw in EXCLUDE_TITLE_KEYWORDS)
+
+
 def _lookup_meta(meta_index: dict, event_url: str, event_name: str) -> Optional[dict]:
     """APIの演目を一覧メタと突合（URL優先、タイトルでフォールバック）"""
     if event_url in meta_index["by_url"]:
@@ -239,6 +248,10 @@ def fetch_schedule(
         weekday = "月火水木金土日"[d.weekday()]
 
         for ev in events:
+            # タイトルに除外キーワード（街歩き 等）を含む演目はスキップ
+            if is_excluded_title(ev.get("event_name", "")):
+                continue
+
             meta = _lookup_meta(meta_index, ev.get("event_url", ""), ev.get("event_name", ""))
 
             # 随時スタートの除外（メタで判定できた場合のみ）
@@ -300,6 +313,9 @@ def list_events(exclude_anytime: bool = True, force: bool = False) -> list:
         for ev in events:
             name = ev.get("event_name", "")
             if name in seen:
+                continue
+            # タイトルに除外キーワード（街歩き 等）を含む演目はスキップ
+            if is_excluded_title(name):
                 continue
             meta = _lookup_meta(meta_index, ev.get("event_url", ""), name)
             if exclude_anytime and meta and meta.get("is_anytime"):
