@@ -15,7 +15,7 @@
 | `app.py` | Streamlit の UI 全体。CSS・カード描画・設定UIを含む |
 | `scraper.py` | 公式サイトのスクレイピングとチケットAPIの呼び出し |
 | `data/cache.json` | スクレイピング・APIのキャッシュ（git管理外） |
-| `data/user_settings.json` | 除外演目などのユーザー設定（git管理外） |
+| `data/user_settings.json` | 旧ユーザー設定。現在は**ブラウザのlocalStorage**に保存。これは新規端末への引き継ぎ用の初期値としてのみ参照（git管理外） |
 | `.streamlit/config.toml` | テーマ（背景 `#F5F7FA`・サイドバー `#FBFCFE`・青アクセント `#2F6FED`） |
 | `icon.png` | Streamlitのページアイコン（favicon）。`app.py` の `st.set_page_config(page_icon=...)` で使用 |
 | `docs/index.html` | **GitHub Pages の入口ページ**（iPhoneホーム画面アイコン用） |
@@ -27,6 +27,16 @@
 - **チケット・空き状況**: `fetch_tickets_for_date()` で公式API（`api.scrapmagazine.com`）を叩く。2時間キャッシュ
 - キャッシュは `data/cache.json` に保存。Streamlit の `@st.cache_data(ttl=7200)` でメモリにも2時間保持
 - **2層キャッシュに注意**: ①Streamlitメモリ（`@st.cache_data`）と ②scraperのファイル（`data/cache.json`）の2層がある。「データを今すぐ更新」ボタンは両方をクリアする必要があるため、`scraper.clear_cache()`（ファイル削除）＋ `st.cache_data.clear()`（メモリ）の両方を呼ぶ。片方だけだと最終更新時刻が変わらない
+
+## ユーザー設定の永続化（localStorage・重要・ハマりどころ）
+
+- 除外演目・前回選んだ演目・参加人数は **ブラウザのlocalStorage** に端末ごとに保存する（`streamlit-local-storage` パッケージ）。
+  - **なぜファイルでなくlocalStorageか**: Streamlit Community Cloud のディスクは一時的で、アプリがスリープ/再起動するたびにファイルが消える。サーバー側ファイルだと設定が毎回リセットされる（しかも全ユーザー共通になる）。localStorageなら「自分のiPhone/Mac」に残る。streamlit.appは同一オリジンなので、入口ページ(`docs/`)から何度起動しても保持される。
+  - キー: `escape_excluded_events` / `escape_last_event` / `escape_group_size`（`app.py` の `LS_*` 定数）。
+  - 旧 `data/user_settings.json` は、新規端末への**初回引き継ぎ用の初期値**としてのみ読む（`_load_excluded_from_file()`）。
+- **ハマりどころ①「読み込み直後の上書き事故」**: localStorageコンポーネントはページ読み込み直後の最初の実行ではまだ中身が空。その空状態で設定ウィジェットを作ると「空＝既定値」で初期化され、それを保存してしまうと本来の設定を消す。
+  - **対策**: 保存は必ず **ユーザー操作時（`on_change` コールバック）だけ** 行う。描画のたびには保存しない。各設定に `_xxx_user_set` フラグを持ち、ユーザーが触るまでは毎回localStorageの保存値をセットし直す（読めた時点で正しく反映される）。`_on_group_size_change` / `_on_exclude_change` / `_on_event_pick_change` 参照。
+- **ハマりどころ②**: `st.stop()` でロード完了を待つ方式は **不可**。`st.stop()` がlocalStorageコンポーネントをアンマウントしてしまい（コンソールに `unregistered ComponentInstance` 警告）、データが永久に届かず固まる。待ちゲートは作らないこと。
 
 ## iPhoneホーム画面アイコン（重要・ハマりどころ）
 
@@ -53,9 +63,9 @@ EXCLUDE_TITLE_KEYWORDS = ("街歩き",)
 ## UIの構成
 
 - **サイドバー**: 参加人数・満員非表示・除外演目設定（ポップアップ式チェックボックス）・更新ボタン
-- **タブ1「演目から探す」**: 演目セレクトボックス → 日付範囲 → 時間枠カードのグリッド表示
+- **タブ1「演目から探す」**: 演目ピッカー（ポップオーバー＋ラジオのタップ選択。iPhoneでキーボードが出ないよう`selectbox`をやめた） → 日付範囲 → 時間枠カードのグリッド表示
 - **タブ2「日付から探す」**: 日付範囲（クイック選択ボタン付き） → 日付ごとに演目カードを表示
-- 除外中演目は各タブの日付エリア下に赤チップのバナーで表示（`render_excluded_banner()`）
+- 除外中演目は各タブの日付エリア下に**開閉式（`st.expander`）の赤チップバナー**で表示（`render_excluded_banner()`）。演目が多いとき邪魔にならないよう既定は閉じる
 
 ## デザイン方針
 
@@ -77,4 +87,4 @@ EXCLUDE_TITLE_KEYWORDS = ("街歩き",)
 ## 将来の予定
 
 - Notion の「体験済みイベントリスト」と照合して未体験のみ検索対象にする機能
-  - 現在は `load_excluded_events()` がファイルから読む実装になっているので、ここを Notion API 取得に差し替えれば対応できる
+  - 現在は `load_excluded_events()` がlocalStorageから読む実装になっているので、ここを Notion API 取得に差し替えれば対応できる

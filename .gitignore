@@ -1,7 +1,7 @@
 # キャッシュ（スクレイピング結果。再取得できるのでGit管理しない）
 data/cache.json
 
-# ユーザー設定（除外演目など。端末ごとの設定なのでGit管理しない）
+# 旧ユーザー設定（現在は設定をブラウザのlocalStorageに保存。引き継ぎ用の名残）
 data/user_settings.json
 
 # macOS

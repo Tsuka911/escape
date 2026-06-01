@@ -5,6 +5,7 @@ from pathlib import Path
 
 from PIL import Image as PILImage
 import streamlit as st
+from streamlit_local_storage import LocalStorage
 
 from scraper import (
     list_events,
@@ -13,12 +14,28 @@ from scraper import (
     clear_cache,
 )
 
-# ユーザー設定（除外演目など）の保存先
+# 旧バージョンのユーザー設定ファイル（localStorageへ引き継ぐための初期値としてのみ参照）
 SETTINGS_PATH = Path(__file__).parent / "data" / "user_settings.json"
 
+# ── 設定の保存先：ブラウザのlocalStorage（端末ごとに永続化）───────────
+# Streamlit Community Cloud のファイルは再起動で消えるため、サーバー側ファイルでは
+# 設定が毎回リセットされてしまう。そこで「自分のiPhone/Macに残す」ために、
+# ブラウザのlocalStorageへ保存する。streamlit.appは同一オリジンなので、
+# GitHub Pagesの入口ページから何度起動しても端末ごとに設定が保持される。
+LS_EXCLUDED = "escape_excluded_events"   # 除外演目（JSON文字列）
+LS_LAST_EVENT = "escape_last_event"      # タブ1で前回選んだ演目名
+LS_GROUP_SIZE = "escape_group_size"      # 参加予定人数
 
-def load_excluded_events() -> list:
-    """除外する演目名のリストをファイルから読み込む（無ければ空リスト）"""
+
+def get_local_storage() -> LocalStorage:
+    """localStorageコンポーネントを1セッションにつき1度だけ生成して使い回す"""
+    if "_local_storage" not in st.session_state:
+        st.session_state["_local_storage"] = LocalStorage()
+    return st.session_state["_local_storage"]
+
+
+def _load_excluded_from_file() -> list:
+    """旧 data/user_settings.json から除外演目を読む（初回引き継ぎ用・無ければ空）"""
     try:
         data = json.loads(SETTINGS_PATH.read_text(encoding="utf-8"))
         return list(data.get("excluded_events", []))
@@ -26,16 +43,57 @@ def load_excluded_events() -> list:
         return []
 
 
-def save_excluded_events(names: list) -> None:
-    """除外する演目名のリストをファイルに保存する"""
+def load_excluded_events(ls: LocalStorage) -> list:
+    """除外する演目名のリストをlocalStorageから読み込む。
+    まだ保存が無ければ旧ファイルの内容を初期値として引き継ぐ。"""
+    raw = ls.getItem(LS_EXCLUDED)
+    if raw is None:
+        return _load_excluded_from_file()
     try:
-        SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
-        SETTINGS_PATH.write_text(
-            json.dumps({"excluded_events": names}, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
-    except Exception as e:
-        st.warning(f"除外設定の保存に失敗しました: {e}")
+        return list(json.loads(raw))
+    except Exception:
+        return []
+
+
+def save_excluded_events(ls: LocalStorage, names: list) -> None:
+    """除外する演目名のリストをlocalStorageに保存する"""
+    # 空リストでも保存できるようJSON文字列（"[]"）にする（空文字は保存されないため）
+    ls.setItem(LS_EXCLUDED, json.dumps(names, ensure_ascii=False), key="set_excluded")
+
+
+def load_group_size(ls: LocalStorage) -> int:
+    """参加予定人数をlocalStorageから読む（無ければ4人）"""
+    try:
+        return int(ls.getItem(LS_GROUP_SIZE))
+    except (TypeError, ValueError):
+        return 4
+
+
+def save_group_size(ls: LocalStorage, value: int) -> None:
+    ls.setItem(LS_GROUP_SIZE, str(value), key="set_group_size")
+
+
+# ── 設定変更時のコールバック（保存はユーザー操作時だけ行う）─────────
+# localStorageは読み込みに一瞬かかる。その「まだ空」の状態で保存処理を走らせると
+# 既定値で本来の設定を上書きしてしまうため、保存は必ずユーザーが操作した
+# on_changeコールバックの中だけで行う（描画のたびには保存しない）。
+
+
+def _on_group_size_change(ls: LocalStorage) -> None:
+    st.session_state["_grp_user_set"] = True
+    save_group_size(ls, int(st.session_state["grp_input"]))
+
+
+def _on_exclude_change(ls: LocalStorage, options: list) -> None:
+    st.session_state["_excl_user_set"] = True
+    selected = [n for n in options if st.session_state.get(f"excl_{n}")]
+    save_excluded_events(ls, selected)
+    st.toast("除外設定を保存しました")
+
+
+def _on_event_pick_change(ls: LocalStorage) -> None:
+    st.session_state["_ev_user_set"] = True
+    ls.setItem(LS_LAST_EVENT, st.session_state["ev_pick"], key="set_last_event")
 
 _icon = PILImage.open(Path(__file__).parent / "icon.png")
 st.set_page_config(
@@ -521,17 +579,23 @@ def main():
     inject_css()
     render_header()
 
-    excluded = load_excluded_events()
+    ls = get_local_storage()
+    excluded = load_excluded_events(ls)
 
     with st.sidebar:
         st.subheader(":material/tune: 設定")
+        # ユーザーが触るまでは、localStorageの保存値を毎回セットし直す。
+        # （localStorageは読み込みに一瞬かかるため、読めた時点で反映させる）
+        if not st.session_state.get("_grp_user_set"):
+            st.session_state["grp_input"] = load_group_size(ls)
         group_size = st.number_input(
-            "参加予定人数", min_value=1, max_value=20, value=4, step=1
+            "参加予定人数", min_value=1, max_value=20, step=1,
+            key="grp_input", on_change=_on_group_size_change, args=(ls,),
         )
         hide_full = st.checkbox("満員の枠を非表示", value=True)
 
         st.markdown("---")
-        excluded = render_exclude_setting(excluded)
+        excluded = render_exclude_setting(ls, excluded)
 
         st.markdown("---")
         updated = get_meta_updated_at()
@@ -549,14 +613,14 @@ def main():
 
     # ── タブ1: 演目から探す ──────────────────────────────────
     with tab1:
-        render_tab_event(group_size, hide_full, excluded)
+        render_tab_event(ls, group_size, hide_full, excluded)
 
     # ── タブ2: 日付から探す ──────────────────────────────────
     with tab2:
         render_tab_date(group_size, hide_full, excluded)
 
 
-def render_exclude_setting(excluded):
+def render_exclude_setting(ls, excluded):
     """サイドバーの「検索から除外する演目」設定。
     ポップアップ内に全演目のチェックボックスを並べ、選択結果（除外する演目名リスト）を返す。"""
     st.caption(":material/filter_alt: 検索から除外する演目")
@@ -572,43 +636,47 @@ def render_exclude_setting(excluded):
         st.caption("演目を読み込めませんでした。")
         return excluded
 
+    excluded_set = set(excluded)
+
+    # ユーザーが触るまでは、各チェックボックスの状態を保存値に合わせ続ける。
+    # （localStorageが読めた時点で正しいチェック状態に反映される）
+    if not st.session_state.get("_excl_user_set"):
+        for name in options:
+            st.session_state[f"excl_{name}"] = name in excluded_set
+
     label = (
         f"演目を選ぶ（{len(excluded)}件 除外中）" if excluded else "演目を選ぶ"
     )
-    excluded_set = set(excluded)
-    selected = []
     with st.popover(label, icon=":material/filter_alt:", use_container_width=True):
         st.caption("検索結果から外したい演目にチェック")
         # 演目が多くてもポップアップが画面外に伸びないよう、高さ固定のスクロール領域に入れる
         with st.container(height=300):
             for name in options:
-                if st.checkbox(name, value=(name in excluded_set), key=f"excl_{name}"):
-                    selected.append(name)
+                st.checkbox(
+                    name, key=f"excl_{name}",
+                    on_change=_on_exclude_change, args=(ls, options),
+                )
 
-    # 選択が変わったときだけ保存
-    if set(selected) != excluded_set:
-        save_excluded_events(selected)
-        st.toast("除外設定を保存しました")
-
-    return selected
+    # 現在のチェック状態を集計して返す（保存はon_changeの中だけで行う）
+    return [n for n in options if st.session_state.get(f"excl_{n}")]
 
 
 def render_excluded_banner(excluded):
-    """main側で、現在除外中の演目を見やすく一覧表示する"""
+    """main側で、現在除外中の演目を開閉式（expander）で一覧表示する。
+    演目が多いときに邪魔にならないよう、既定は閉じておく。"""
     if not excluded:
         return
     chips = "".join(
         f'<span class="excl-chip">{escape(name)}</span>' for name in excluded
     )
-    st.markdown(
-        f'<div class="excl-banner">'
-        f'<span class="excl-banner-label">除外中（{len(excluded)}件）</span>'
-        f"{chips}</div>",
-        unsafe_allow_html=True,
-    )
+    with st.expander(f"除外中の演目（{len(excluded)}件）", expanded=False):
+        st.markdown(
+            f'<div class="excl-banner">{chips}</div>',
+            unsafe_allow_html=True,
+        )
 
 
-def render_tab_event(group_size, hide_full, excluded):
+def render_tab_event(ls, group_size, hide_full, excluded):
     with st.spinner("演目一覧を読み込み中..."):
         try:
             events = get_event_list()
@@ -634,10 +702,38 @@ def render_tab_event(group_size, hide_full, excluded):
             parts.append("（" + " / ".join(extra) + "）")
         return "".join(parts)
 
-    idx = st.selectbox(
-        "演目を選ぶ", range(len(events)), format_func=lambda i: fmt(events[i]), key="ev_sel"
-    )
-    ev = events[idx]
+    # ── 演目選択：ポップオーバー＋タップ選択 ──────────────────
+    # iPhoneのselectboxは検索ボックスにフォーカスが当たりキーボードが出てしまうため、
+    # ボタンを押すと一覧が開き、タップで選ぶ方式にする（キーボードは出ない）。
+    names = [e["event_name"] for e in events]
+    label_map = {e["event_name"]: fmt(e) for e in events}
+
+    # ユーザーがまだ選んでいない間は、前回選んだ演目（localStorage）を既定に
+    # し続ける。読み込み前で値が無い／除外で一覧から消えた場合は先頭を既定にする。
+    # 保存はタップ時（on_change）だけ行うので、読み込み中の上書き事故が起きない。
+    if not st.session_state.get("_ev_user_set") or st.session_state.get("ev_pick") not in names:
+        last_event = ls.getItem(LS_LAST_EVENT)
+        st.session_state["ev_pick"] = last_event if last_event in names else names[0]
+
+    current = st.session_state["ev_pick"]
+    with st.popover(
+        f"演目：{label_map[current]}",
+        icon=":material/theater_comedy:",
+        use_container_width=True,
+    ):
+        st.caption("演目をタップして選ぶ")
+        with st.container(height=320):
+            chosen = st.radio(
+                "演目を選ぶ",
+                names,
+                format_func=lambda n: label_map[n],
+                key="ev_pick",
+                on_change=_on_event_pick_change,
+                args=(ls,),
+                label_visibility="collapsed",
+            )
+
+    ev = next(e for e in events if e["event_name"] == chosen)
     unit = ev["order_unit"]
 
     today = date.today()
