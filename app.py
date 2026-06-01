@@ -130,6 +130,15 @@ def _on_filter_change(ls: LocalStorage) -> None:
     save_filter_times(ls, st.session_state.get("flt_times") or [])
 
 
+def _shift_cal_month(delta: int) -> None:
+    """カレンダーの対象月を delta ヶ月ずらす（前の月/次の月ボタンのコールバック）。"""
+    y = st.session_state.get("cal_year", date.today().year)
+    m = st.session_state.get("cal_month", date.today().month) + delta
+    y += (m - 1) // 12
+    m = (m - 1) % 12 + 1
+    st.session_state["cal_year"], st.session_state["cal_month"] = y, m
+
+
 # ── 絞り込みの判定ヘルパー（未選択＝絞り込みなし＝全部表示）───────────
 
 
@@ -1241,20 +1250,17 @@ def render_tab_calendar(ls, group_size, excluded, filter_times):
         st.session_state["cal_year"] = today.year
         st.session_state["cal_month"] = today.month
 
-    def shift_month(delta: int):
-        y, m = st.session_state["cal_year"], st.session_state["cal_month"]
-        m += delta
-        y += (m - 1) // 12
-        m = (m - 1) % 12 + 1
-        st.session_state["cal_year"], st.session_state["cal_month"] = y, m
-
     cy, cm = st.session_state["cal_year"], st.session_state["cal_month"]
 
+    # 月送りは on_click コールバックで行う。st.rerun() を明示的に呼ぶと
+    # タブの選択がリセットされ「日付から探す」に戻ってしまうため使わない
+    # （ボタン押下だけで再実行は走る。日付セルのタップと同じ方式）。
     nav_prev, nav_label, nav_next = st.columns([1, 2, 1], gap="small")
     with nav_prev:
-        if st.button("前の月", use_container_width=True, key="cal_prev"):
-            shift_month(-1)
-            st.rerun()
+        st.button(
+            "前の月", use_container_width=True, key="cal_prev",
+            on_click=_shift_cal_month, args=(-1,),
+        )
     with nav_label:
         st.markdown(
             f'<div style="text-align:center;font-weight:800;font-size:1.1rem;'
@@ -1262,9 +1268,10 @@ def render_tab_calendar(ls, group_size, excluded, filter_times):
             unsafe_allow_html=True,
         )
     with nav_next:
-        if st.button("次の月", use_container_width=True, key="cal_next"):
-            shift_month(1)
-            st.rerun()
+        st.button(
+            "次の月", use_container_width=True, key="cal_next",
+            on_click=_shift_cal_month, args=(1,),
+        )
 
     month_start = date(cy, cm, 1)
     last_day = calendar.monthrange(cy, cm)[1]
