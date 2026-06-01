@@ -33,6 +33,13 @@ LS_FILTER_TIMES = "escape_filter_times"  # 絞り込み：時間帯（JSON文字
 TYPE_OPTIONS = ["ホール型", "ルーム型", "その他"]
 TIME_OPTIONS = ["午前", "午後", "夜"]
 
+# 画面切り替え（旧タブ）。(表示名, アイコン)
+VIEW_OPTIONS = [
+    ("演目から探す", ":material/theater_comedy:"),
+    ("日付から探す", ":material/calendar_month:"),
+    ("カレンダー", ":material/grid_view:"),
+]
+
 
 def get_local_storage() -> LocalStorage:
     """localStorageコンポーネントを1セッションにつき1度だけ生成して使い回す"""
@@ -124,9 +131,15 @@ def _on_event_pick_change(ls: LocalStorage, widget_key: str) -> None:
     ls.setItem(LS_LAST_EVENT, chosen, key="set_last_event")
 
 
-def _on_filter_change(ls: LocalStorage) -> None:
+def _on_filter_types_change(ls: LocalStorage) -> None:
+    # 種別・時間帯で別コールバックにする（同じrunで同じsetItemキーを二重に呼ぶと
+    # StreamlitDuplicateElementKeyになるため、各保存は1回だけになるよう分ける）
     st.session_state["_flt_user_set"] = True
     save_filter_types(ls, st.session_state.get("flt_types") or [])
+
+
+def _on_filter_times_change(ls: LocalStorage) -> None:
+    st.session_state["_flt_user_set"] = True
     save_filter_times(ls, st.session_state.get("flt_times") or [])
 
 
@@ -632,6 +645,33 @@ def inject_css():
             min-width: 0 !important;
             width: auto !important;
         }
+        /* ── 画面切り替え（旧タブ）のボタンバー ── */
+        .st-key-view_switch [data-testid="stHorizontalBlock"] {
+            flex-wrap: nowrap !important;
+            gap: 4px !important;
+        }
+        .st-key-view_switch [data-testid="stColumn"] {
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+        }
+        .st-key-view_switch .stButton > button {
+            border-radius: 10px;
+            padding: 0.4rem 0.2rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .st-key-view_switch [data-testid="stBaseButton-primary"] {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .st-key-view_switch [data-testid="stBaseButton-secondary"] {
+            background: #fff;
+            color: var(--text-sub);
+            border-color: var(--border-soft);
+        }
+
         /* メイン側の汎用ボタンCSS（白・丸タグ）を打ち消し、正方形寄りのセルにする */
         .st-key-cal_grid .stButton > button {
             border-radius: 8px;
@@ -738,25 +778,32 @@ def main():
             st.cache_data.clear()  # Streamlitのメモリキャッシュをクリア
             st.rerun()
 
-    tab1, tab2, tab3 = st.tabs(
-        [
-            ":material/theater_comedy: 演目から探す",
-            ":material/calendar_month: 日付から探す",
-            ":material/grid_view: カレンダー",
-        ]
-    )
+    # ── 画面切り替え ────────────────────────────────────────
+    # st.tabs は再実行のたびに選択がリセットされ（フィルタ変更や月送り等で）
+    # 別タブに飛んでしまうため、選択を session_state に持つ自前の切り替えボタンにする。
+    # これでどの操作で再実行が走っても、表示中の画面が維持される。
+    if "active_view" not in st.session_state:
+        st.session_state["active_view"] = VIEW_OPTIONS[0][0]
+    active = st.session_state["active_view"]
 
-    # ── タブ1: 演目から探す ──────────────────────────────────
-    with tab1:
+    with st.container(key="view_switch"):
+        cols = st.columns(len(VIEW_OPTIONS), gap="small")
+        for col, (name, icon) in zip(cols, VIEW_OPTIONS):
+            col.button(
+                name,
+                icon=icon,
+                use_container_width=True,
+                type=("primary" if name == active else "secondary"),
+                key=f"viewbtn_{name}",
+                on_click=lambda n=name: st.session_state.update(active_view=n),
+            )
+
+    if active == "演目から探す":
         render_tab_event(ls, group_size, hide_full, excluded, filter_types, filter_times)
-
-    # ── タブ2: 日付から探す ──────────────────────────────────
-    with tab2:
+    elif active == "日付から探す":
         render_tab_date(group_size, hide_full, excluded, filter_types, filter_times)
-
-    # ── タブ3: カレンダー ────────────────────────────────────
-    with tab3:
-        render_tab_calendar(ls, group_size, excluded, filter_times)
+    else:
+        render_tab_calendar(ls, group_size, excluded, filter_types, filter_times)
 
 
 def render_filter_setting(ls):
@@ -775,11 +822,11 @@ def render_filter_setting(ls):
 
     st.pills(
         "種別", TYPE_OPTIONS, selection_mode="multi",
-        key="flt_types", on_change=_on_filter_change, args=(ls,),
+        key="flt_types", on_change=_on_filter_types_change, args=(ls,),
     )
     st.pills(
         "時間帯", TIME_OPTIONS, selection_mode="multi",
-        key="flt_times", on_change=_on_filter_change, args=(ls,),
+        key="flt_times", on_change=_on_filter_times_change, args=(ls,),
     )
 
     return (
@@ -898,23 +945,30 @@ def render_event_picker(ls, events, widget_key: str):
     return next(e for e in events if e["event_name"] == chosen)
 
 
-def get_filtered_event_list(excluded):
-    """除外演目を外した演目一覧を返す（タブ1・カレンダー共通）。失敗時は None。"""
+def get_filtered_event_list(excluded, filter_types):
+    """除外演目を外し、種別フィルタも適用した演目一覧を返す（タブ1・カレンダー共通）。
+    取得失敗時は None。種別フィルタは演目の選択肢自体に効かせる
+    （例：ルーム型を選ぶと、選べる演目がルーム型だけになる）。"""
     try:
         events = get_event_list()
     except Exception as e:
         st.error(f"演目一覧の取得に失敗しました: {e}")
         return None
-    return [e for e in events if e["event_name"] not in set(excluded)]
+    excluded_set = set(excluded)
+    return [
+        e for e in events
+        if e["event_name"] not in excluded_set
+        and event_passes_type(e.get("type"), filter_types)
+    ]
 
 
 def render_tab_event(ls, group_size, hide_full, excluded, filter_types, filter_times):
     with st.spinner("演目一覧を読み込み中..."):
-        events = get_filtered_event_list(excluded)
+        events = get_filtered_event_list(excluded, filter_types)
     if events is None:
         return
     if not events:
-        st.warning("演目が見つかりませんでした。")
+        st.warning("条件に合う演目がありません。サイドバーの種別の絞り込みを見直してください。")
         return
 
     # ── 演目選択：ポップオーバー＋タップ選択（タブ1とカレンダーで共有）──
@@ -1227,18 +1281,18 @@ def render_event_day_slots(ev, slots, group_size, filter_times):
     )
 
 
-def render_tab_calendar(ls, group_size, excluded, filter_times):
+def render_tab_calendar(ls, group_size, excluded, filter_types, filter_times):
     """選んだ1演目の空き状況を、月カレンダーのヒートマップで表示する。
     緑=空きあり / 黄=わずか / 赤=満員 / グレー=開催なし。
     日をタップするとその日の時間枠を下に表示する。"""
     today = date.today()
 
     with st.spinner("演目一覧を読み込み中..."):
-        events = get_filtered_event_list(excluded)
+        events = get_filtered_event_list(excluded, filter_types)
     if events is None:
         return
     if not events:
-        st.warning("演目が見つかりませんでした。")
+        st.warning("条件に合う演目がありません。サイドバーの種別の絞り込みを見直してください。")
         return
 
     # 演目選択（タブ1と共有）
