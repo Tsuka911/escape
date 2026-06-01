@@ -962,6 +962,64 @@ def render_event_picker(ls, events, widget_key: str):
     return next(e for e in events if e["event_name"] == chosen)
 
 
+def render_date_range(key_prefix: str, default_end_days: int):
+    """日付範囲（開始/終了/土日のみ）＋クイック選択を、開閉式（expander）で表示する。
+    タブ1・タブ2共通。スマホでボタンが場所を取って検索結果が押し下げられないよう
+    既定は閉じておき、閉じていても現在の期間がラベルで分かるようにする。
+    戻り値: (start_d, end_d, weekend_only)"""
+    today = date.today()
+    s_key, e_key, we_key = f"{key_prefix}_s", f"{key_prefix}_e", f"{key_prefix}_we"
+    default_end = today + timedelta(days=default_end_days)
+
+    def next_sat(offset_weeks: int = 0) -> date:
+        days = (5 - today.weekday()) % 7
+        return today + timedelta(days=days + offset_weeks * 7)
+
+    # 折りたたみ時もわかるよう、現在の期間をラベルに出す
+    cur_s = st.session_state.get(s_key, today)
+    cur_e = st.session_state.get(e_key, default_end)
+    label = f"期間：{cur_s.month}/{cur_s.day} 〜 {cur_e.month}/{cur_e.day}"
+
+    with st.expander(label, expanded=False):
+        # containerで表示位置を先に確保し、日付欄が上・クイック選択が下になるよう制御
+        date_row = st.container()
+        quick_row = st.container()
+
+        # ボタン処理はwidget生成より前に実行する必要があるため quick_row を先に書く
+        with quick_row:
+            st.caption("クイック選択（土曜日をセット）")
+            lb_s, b_s1, b_s2, lb_e, b_e1, b_e2, _sp = st.columns(
+                [0.7, 0.8, 0.8, 0.7, 0.8, 0.8, 1.4], gap="small"
+            )
+            with lb_s:
+                st.caption("開始日")
+            with b_s1:
+                if st.button("今週", key=f"qs_{key_prefix}_s1", use_container_width=True):
+                    st.session_state[s_key] = next_sat(0)
+            with b_s2:
+                if st.button("来週", key=f"qs_{key_prefix}_s2", use_container_width=True):
+                    st.session_state[s_key] = next_sat(1)
+            with lb_e:
+                st.caption("終了日")
+            with b_e1:
+                if st.button("今週", key=f"qs_{key_prefix}_e1", use_container_width=True):
+                    st.session_state[e_key] = next_sat(0)
+            with b_e2:
+                if st.button("来週", key=f"qs_{key_prefix}_e2", use_container_width=True):
+                    st.session_state[e_key] = next_sat(1)
+
+        with date_row:
+            c1, c2, c3 = st.columns([2, 2, 2])
+            with c1:
+                start_d = st.date_input("期間（開始）", value=today, key=s_key)
+            with c2:
+                end_d = st.date_input("期間（終了）", value=default_end, key=e_key)
+            with c3:
+                weekend_only = st.checkbox("土日のみ表示", value=True, key=we_key)
+
+    return start_d, end_d, weekend_only
+
+
 def get_filtered_event_list(excluded, filter_types):
     """除外演目を外し、種別フィルタも適用した演目一覧を返す（タブ1・カレンダー共通）。
     取得失敗時は None。種別フィルタは演目の選択肢自体に効かせる
@@ -992,14 +1050,7 @@ def render_tab_event(ls, group_size, hide_full, excluded, filter_types, filter_t
     ev = render_event_picker(ls, events, "ev_pick")
     unit = ev["order_unit"]
 
-    today = date.today()
-    c1, c2, c3 = st.columns([2, 2, 2])
-    with c1:
-        start_d = st.date_input("期間（開始）", value=today, key="t1_s")
-    with c2:
-        end_d = st.date_input("期間（終了）", value=today + timedelta(days=60), key="t1_e")
-    with c3:
-        weekend_only = st.checkbox("土日のみ表示", value=True, key="t1_we")
+    start_d, end_d, weekend_only = render_date_range("t1", 60)
 
     if start_d > end_d:
         st.warning("開始日が終了日より後になっています。")
@@ -1182,48 +1233,7 @@ def render_day_event_cards(
 
 
 def render_tab_date(group_size, hide_full, excluded, filter_types, filter_times):
-    today = date.today()
-
-    def next_sat(offset_weeks: int = 0) -> date:
-        days = (5 - today.weekday()) % 7
-        return today + timedelta(days=days + offset_weeks * 7)
-
-    # containerで表示位置を先に確保し、日付欄が上・クイック選択が下になるよう制御
-    date_row = st.container()
-    quick_row = st.container()
-
-    # ボタン処理はwidget生成より前に実行する必要があるため quick_row を先に書く
-    with quick_row:
-        st.caption("クイック選択（土曜日をセット）")
-        # 開始日グループ／終了日グループを左寄せで詰め、余ったスペースは末尾にまとめる
-        lb_s, b_s1, b_s2, lb_e, b_e1, b_e2, _sp = st.columns(
-            [0.7, 0.8, 0.8, 0.7, 0.8, 0.8, 1.4], gap="small"
-        )
-        with lb_s:
-            st.caption("開始日")
-        with b_s1:
-            if st.button("今週", key="qs_s1", use_container_width=True):
-                st.session_state["t2_s"] = next_sat(0)
-        with b_s2:
-            if st.button("来週", key="qs_s2", use_container_width=True):
-                st.session_state["t2_s"] = next_sat(1)
-        with lb_e:
-            st.caption("終了日")
-        with b_e1:
-            if st.button("今週", key="qs_e1", use_container_width=True):
-                st.session_state["t2_e"] = next_sat(0)
-        with b_e2:
-            if st.button("来週", key="qs_e2", use_container_width=True):
-                st.session_state["t2_e"] = next_sat(1)
-
-    with date_row:
-        c1, c2, c3 = st.columns([2, 2, 2])
-        with c1:
-            start_d = st.date_input("期間（開始）", value=today, key="t2_s")
-        with c2:
-            end_d = st.date_input("期間（終了）", value=today + timedelta(days=30), key="t2_e")
-        with c3:
-            weekend_only = st.checkbox("土日のみ表示", value=True, key="t2_we")
+    start_d, end_d, weekend_only = render_date_range("t2", 30)
 
     if start_d > end_d:
         st.warning("開始日が終了日より後になっています。")
