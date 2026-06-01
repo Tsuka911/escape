@@ -661,15 +661,32 @@ def inject_css():
             font-weight: 700;
             white-space: nowrap;
         }
-        .st-key-view_switch [data-testid="stBaseButton-primary"] {
+        /* 選択中（青塗り）。ホバー/フォーカス/タップ後も文字を白に保つ。
+           （汎用の :hover で文字色がアクセント青になり、青背景に同化して
+           読めなくなるのを防ぐ。Macのマウスオーバー・iPhoneのタップ残り対策） */
+        .st-key-view_switch [data-testid="stBaseButton-primary"],
+        .st-key-view_switch [data-testid="stBaseButton-primary"]:hover,
+        .st-key-view_switch [data-testid="stBaseButton-primary"]:focus,
+        .st-key-view_switch [data-testid="stBaseButton-primary"]:active,
+        .st-key-view_switch [data-testid="stBaseButton-primary"]:focus-visible {
             background: var(--accent);
             border-color: var(--accent);
-            color: #fff;
+            color: #fff !important;
         }
+        .st-key-view_switch [data-testid="stBaseButton-primary"]:hover {
+            background: var(--accent-strong);
+            border-color: var(--accent-strong);
+        }
+        /* 非選択（白）。ホバー時はアクセント文字＋白背景で読める状態を保つ */
         .st-key-view_switch [data-testid="stBaseButton-secondary"] {
             background: #fff;
             color: var(--text-sub);
             border-color: var(--border-soft);
+        }
+        .st-key-view_switch [data-testid="stBaseButton-secondary"]:hover {
+            background: #fff;
+            color: var(--accent) !important;
+            border-color: var(--accent);
         }
 
         /* メイン側の汎用ボタンCSS（白・丸タグ）を打ち消し、正方形寄りのセルにする */
