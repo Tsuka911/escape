@@ -1,3 +1,4 @@
+import calendar
 import json
 from datetime import date, timedelta
 from html import escape
@@ -25,6 +26,12 @@ SETTINGS_PATH = Path(__file__).parent / "data" / "user_settings.json"
 LS_EXCLUDED = "escape_excluded_events"   # 除外演目（JSON文字列）
 LS_LAST_EVENT = "escape_last_event"      # タブ1で前回選んだ演目名
 LS_GROUP_SIZE = "escape_group_size"      # 参加予定人数
+LS_FILTER_TYPES = "escape_filter_types"  # 絞り込み：種別（JSON文字列のリスト）
+LS_FILTER_TIMES = "escape_filter_times"  # 絞り込み：時間帯（JSON文字列のリスト）
+
+# 絞り込みの選択肢
+TYPE_OPTIONS = ["ホール型", "ルーム型", "その他"]
+TIME_OPTIONS = ["午前", "午後", "夜"]
 
 
 def get_local_storage() -> LocalStorage:
@@ -73,6 +80,25 @@ def save_group_size(ls: LocalStorage, value: int) -> None:
     ls.setItem(LS_GROUP_SIZE, str(value), key="set_group_size")
 
 
+def _load_list(ls: LocalStorage, key: str) -> list:
+    """localStorageからJSON配列を読む（無ければ空リスト）"""
+    raw = ls.getItem(key)
+    if raw is None:
+        return []
+    try:
+        return list(json.loads(raw))
+    except Exception:
+        return []
+
+
+def save_filter_types(ls: LocalStorage, values: list) -> None:
+    ls.setItem(LS_FILTER_TYPES, json.dumps(values, ensure_ascii=False), key="set_filter_types")
+
+
+def save_filter_times(ls: LocalStorage, values: list) -> None:
+    ls.setItem(LS_FILTER_TIMES, json.dumps(values, ensure_ascii=False), key="set_filter_times")
+
+
 # ── 設定変更時のコールバック（保存はユーザー操作時だけ行う）─────────
 # localStorageは読み込みに一瞬かかる。その「まだ空」の状態で保存処理を走らせると
 # 既定値で本来の設定を上書きしてしまうため、保存は必ずユーザーが操作した
@@ -91,9 +117,52 @@ def _on_exclude_change(ls: LocalStorage, options: list) -> None:
     st.toast("除外設定を保存しました")
 
 
-def _on_event_pick_change(ls: LocalStorage) -> None:
+def _on_event_pick_change(ls: LocalStorage, widget_key: str) -> None:
     st.session_state["_ev_user_set"] = True
-    ls.setItem(LS_LAST_EVENT, st.session_state["ev_pick"], key="set_last_event")
+    chosen = st.session_state[widget_key]
+    st.session_state["sel_event"] = chosen  # タブ1とカレンダーで選択を共有する
+    ls.setItem(LS_LAST_EVENT, chosen, key="set_last_event")
+
+
+def _on_filter_change(ls: LocalStorage) -> None:
+    st.session_state["_flt_user_set"] = True
+    save_filter_types(ls, st.session_state.get("flt_types") or [])
+    save_filter_times(ls, st.session_state.get("flt_times") or [])
+
+
+# ── 絞り込みの判定ヘルパー（未選択＝絞り込みなし＝全部表示）───────────
+
+
+def slot_period(time_str: str) -> str:
+    """時刻 "HH:MM" を 午前/午後/夜 に分類する"""
+    try:
+        hour = int(time_str[:2])
+    except (ValueError, IndexError):
+        return "午後"
+    if hour < 12:
+        return "午前"
+    if hour < 17:
+        return "午後"
+    return "夜"
+
+
+def type_category(event_type) -> str:
+    """演目の種別を絞り込み用カテゴリ（ホール型/ルーム型/その他）に正規化する"""
+    return event_type if event_type in ("ホール型", "ルーム型") else "その他"
+
+
+def event_passes_type(event_type, types: list) -> bool:
+    """種別フィルタを通過するか（typesが空なら全部通過）"""
+    if not types:
+        return True
+    return type_category(event_type) in types
+
+
+def filter_slots(slots: list, times: list) -> list:
+    """時間帯フィルタで枠を絞る（timesが空ならそのまま）"""
+    if not times:
+        return slots
+    return [s for s in slots if slot_period(s["time"]) in times]
 
 _icon = PILImage.open(Path(__file__).parent / "icon.png")
 st.set_page_config(
@@ -136,6 +205,15 @@ STATUS_STYLE = {
     "warn": "background-color:#FDF1DE; color:#B9740F;",
     "full": "background-color:#FDEAEA; color:#CC3B3B;",
     "unknown": "background-color:#EEF2F7; color:#8A94A3;",
+}
+
+# カレンダー（タブ3）のヒートマップ用の塗り色（背景, 文字）。
+# 1演目の空き状況を 緑=空きあり / 黄=わずか / 赤=満員 で日ごとに塗る。
+CAL_COLORS = {
+    "ok": ("#3DA968", "#ffffff"),
+    "warn": ("#E8A13A", "#ffffff"),
+    "full": ("#E0635C", "#ffffff"),
+    "unknown": ("#C2CAD6", "#ffffff"),
 }
 
 # 予約ボタン内の外部リンク矢印（絵文字不使用・SVGで統一）
@@ -533,6 +611,47 @@ def inject_css():
             background: var(--accent-strong);
             box-shadow: 0 2px 8px rgba(47,111,237,0.3);
         }
+
+        /* ── カレンダー（タブ3）の日付セル ── */
+        /* スマホ幅でも7列を横並びに保つ（Streamlitは既定で縦積みにするため上書き） */
+        .st-key-cal_grid [data-testid="stHorizontalBlock"] {
+            flex-wrap: nowrap !important;
+            gap: 3px !important;
+        }
+        .st-key-cal_grid [data-testid="stColumn"] {
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+            width: auto !important;
+        }
+        /* メイン側の汎用ボタンCSS（白・丸タグ）を打ち消し、正方形寄りのセルにする */
+        .st-key-cal_grid .stButton > button {
+            border-radius: 8px;
+            min-height: 44px;
+            padding: 0.1rem 0;
+            font-size: 0.85rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+        /* 開催なしの日は控えめなグレー（色は各日付セルのキー単位CSSで上書きする） */
+        .st-key-cal_grid [data-testid="stBaseButton-secondary"] {
+            color: var(--text-faint);
+            background: #F2F4F8;
+            border-color: #E7EBF1;
+        }
+        /* カレンダーの凡例 */
+        .cal-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem 0.9rem;
+            margin: 0.2rem 0 0.7rem;
+            font-size: 0.76rem;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+        .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
+        .cal-legend i {
+            width: 12px; height: 12px; border-radius: 4px; display: inline-block;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -595,6 +714,9 @@ def main():
         hide_full = st.checkbox("満員の枠を非表示", value=True)
 
         st.markdown("---")
+        filter_types, filter_times = render_filter_setting(ls)
+
+        st.markdown("---")
         excluded = render_exclude_setting(ls, excluded)
 
         st.markdown("---")
@@ -607,17 +729,54 @@ def main():
             st.cache_data.clear()  # Streamlitのメモリキャッシュをクリア
             st.rerun()
 
-    tab1, tab2 = st.tabs(
-        [":material/theater_comedy: 演目から探す", ":material/calendar_month: 日付から探す"]
+    tab1, tab2, tab3 = st.tabs(
+        [
+            ":material/theater_comedy: 演目から探す",
+            ":material/calendar_month: 日付から探す",
+            ":material/grid_view: カレンダー",
+        ]
     )
 
     # ── タブ1: 演目から探す ──────────────────────────────────
     with tab1:
-        render_tab_event(ls, group_size, hide_full, excluded)
+        render_tab_event(ls, group_size, hide_full, excluded, filter_types, filter_times)
 
     # ── タブ2: 日付から探す ──────────────────────────────────
     with tab2:
-        render_tab_date(group_size, hide_full, excluded)
+        render_tab_date(group_size, hide_full, excluded, filter_types, filter_times)
+
+    # ── タブ3: カレンダー ────────────────────────────────────
+    with tab3:
+        render_tab_calendar(ls, group_size, excluded, filter_times)
+
+
+def render_filter_setting(ls):
+    """サイドバーの「絞り込み」設定（種別・時間帯）。
+    タップ式のpillsでキーボードを出さない。未選択＝絞り込みなし（全部表示）。
+    保存はon_changeの中だけで行い、ユーザーが触るまでは保存値をセットし直す。"""
+    st.caption(":material/filter_list: 絞り込み（未選択＝すべて）")
+
+    if not st.session_state.get("_flt_user_set"):
+        st.session_state["flt_types"] = [
+            v for v in _load_list(ls, LS_FILTER_TYPES) if v in TYPE_OPTIONS
+        ]
+        st.session_state["flt_times"] = [
+            v for v in _load_list(ls, LS_FILTER_TIMES) if v in TIME_OPTIONS
+        ]
+
+    st.pills(
+        "種別", TYPE_OPTIONS, selection_mode="multi",
+        key="flt_types", on_change=_on_filter_change, args=(ls,),
+    )
+    st.pills(
+        "時間帯", TIME_OPTIONS, selection_mode="multi",
+        key="flt_times", on_change=_on_filter_change, args=(ls,),
+    )
+
+    return (
+        st.session_state.get("flt_types") or [],
+        st.session_state.get("flt_times") or [],
+    )
 
 
 def render_exclude_setting(ls, excluded):
@@ -676,64 +835,81 @@ def render_excluded_banner(excluded):
         )
 
 
-def render_tab_event(ls, group_size, hide_full, excluded):
-    with st.spinner("演目一覧を読み込み中..."):
-        try:
-            events = get_event_list()
-        except Exception as e:
-            st.error(f"演目一覧の取得に失敗しました: {e}")
-            return
+def format_event_label(e) -> str:
+    """演目ピッカー用の表示ラベル（演目名 ＋ 種別/最大人数）。"""
+    parts = [e["event_name"]]
+    extra = []
+    if e.get("type"):
+        extra.append(e["type"])
+    if e.get("max_team_size"):
+        extra.append(f"最大{e['max_team_size']}人")
+    if extra:
+        parts.append("（" + " / ".join(extra) + "）")
+    return "".join(parts)
 
-    # サイドバーで除外指定された演目を選択肢から外す
-    events = [e for e in events if e["event_name"] not in set(excluded)]
 
-    if not events:
-        st.warning("演目が見つかりませんでした。")
-        return
-
-    def fmt(e):
-        parts = [e["event_name"]]
-        extra = []
-        if e.get("type"):
-            extra.append(e["type"])
-        if e.get("max_team_size"):
-            extra.append(f"最大{e['max_team_size']}人")
-        if extra:
-            parts.append("（" + " / ".join(extra) + "）")
-        return "".join(parts)
-
-    # ── 演目選択：ポップオーバー＋タップ選択 ──────────────────
-    # iPhoneのselectboxは検索ボックスにフォーカスが当たりキーボードが出てしまうため、
-    # ボタンを押すと一覧が開き、タップで選ぶ方式にする（キーボードは出ない）。
-    names = [e["event_name"] for e in events]
-    label_map = {e["event_name"]: fmt(e) for e in events}
-
-    # ユーザーがまだ選んでいない間は、前回選んだ演目（localStorage）を既定に
-    # し続ける。読み込み前で値が無い／除外で一覧から消えた場合は先頭を既定にする。
-    # 保存はタップ時（on_change）だけ行うので、読み込み中の上書き事故が起きない。
-    if not st.session_state.get("_ev_user_set") or st.session_state.get("ev_pick") not in names:
+def get_selected_event_name(ls, names: list) -> str:
+    """タブ1とカレンダーで共有する「選択中の演目名」を返す。
+    ユーザーが触るまでは前回選んだ演目（localStorage）を既定にし続ける。"""
+    if not st.session_state.get("_ev_user_set"):
         last_event = ls.getItem(LS_LAST_EVENT)
-        st.session_state["ev_pick"] = last_event if last_event in names else names[0]
+        st.session_state["sel_event"] = last_event if last_event in names else names[0]
+    elif st.session_state.get("sel_event") not in names:
+        st.session_state["sel_event"] = names[0]
+    return st.session_state["sel_event"]
 
-    current = st.session_state["ev_pick"]
+
+def render_event_picker(ls, events, widget_key: str):
+    """ポップオーバー＋ラジオのタップ選択で演目を選ぶ（キーボードを出さない）。
+    選択は sel_event（タブ1/カレンダー共有）を真として、各ウィジェットはそれに追従する。"""
+    names = [e["event_name"] for e in events]
+    label_map = {e["event_name"]: format_event_label(e) for e in events}
+
+    sel = get_selected_event_name(ls, names)
+    st.session_state[widget_key] = sel  # 共有状態にウィジェットを追従させる
+
     with st.popover(
-        f"演目：{label_map[current]}",
+        f"演目：{label_map[sel]}",
         icon=":material/theater_comedy:",
         use_container_width=True,
     ):
         st.caption("演目をタップして選ぶ")
         with st.container(height=320):
-            chosen = st.radio(
+            st.radio(
                 "演目を選ぶ",
                 names,
                 format_func=lambda n: label_map[n],
-                key="ev_pick",
+                key=widget_key,
                 on_change=_on_event_pick_change,
-                args=(ls,),
+                args=(ls, widget_key),
                 label_visibility="collapsed",
             )
 
-    ev = next(e for e in events if e["event_name"] == chosen)
+    chosen = st.session_state[widget_key]
+    return next(e for e in events if e["event_name"] == chosen)
+
+
+def get_filtered_event_list(excluded):
+    """除外演目を外した演目一覧を返す（タブ1・カレンダー共通）。失敗時は None。"""
+    try:
+        events = get_event_list()
+    except Exception as e:
+        st.error(f"演目一覧の取得に失敗しました: {e}")
+        return None
+    return [e for e in events if e["event_name"] not in set(excluded)]
+
+
+def render_tab_event(ls, group_size, hide_full, excluded, filter_types, filter_times):
+    with st.spinner("演目一覧を読み込み中..."):
+        events = get_filtered_event_list(excluded)
+    if events is None:
+        return
+    if not events:
+        st.warning("演目が見つかりませんでした。")
+        return
+
+    # ── 演目選択：ポップオーバー＋タップ選択（タブ1とカレンダーで共有）──
+    ev = render_event_picker(ls, events, "ev_pick")
     unit = ev["order_unit"]
 
     today = date.today()
@@ -781,7 +957,7 @@ def render_tab_event(ls, group_size, hide_full, excluded):
     table_rows = []
     for r in target:
         d = date.fromisoformat(r["date"])
-        for s in r["slots"]:
+        for s in filter_slots(r["slots"], filter_times):
             if hide_full and (s["stock"] == 0):
                 continue
             status, text = capacity_status(s["stock"], unit, group_size)
@@ -836,7 +1012,96 @@ def render_tab_event(ls, group_size, hide_full, excluded):
     st.caption(f"{len(table_rows)} 件表示")
 
 
-def render_tab_date(group_size, hide_full, excluded):
+def build_day_events(day_rows, group_size, hide_full, filter_types, filter_times):
+    """1日分の演目行を、絞り込み適用後の「表示用演目リスト」に整形して返す。
+    タブ2とカレンダーのドリルインで共有する。空き枠が無い演目は含めない。"""
+    rendered = []
+    for r in day_rows:
+        if not event_passes_type(r.get("type"), filter_types):
+            continue
+        unit = r["order_unit"]
+        slots = filter_slots(r["slots"], filter_times)
+        slots_info = []
+        ranks = []
+        for s in slots:
+            status, _text = capacity_status(s["stock"], unit, group_size)
+            ranks.append(STATUS_RANK[status])
+            if hide_full and (s["stock"] == 0):
+                continue
+            # 記号 + 時刻 + 残数（○=余裕 △=不足の可能性 ×=満員）
+            mark = STATUS_MARK[status]
+            stock_str = "満" if s["stock"] == 0 else f"{s['stock']}{unit}"
+            slots_info.append(
+                {"label": f"{mark} {s['time']}（{stock_str}）", "status": status}
+            )
+
+        if not slots_info:
+            continue
+
+        best_rank = min(ranks) if ranks else 3
+        meta_parts = []
+        if r["type"]:
+            meta_parts.append(r["type"])
+        if r["max_team_size"]:
+            meta_parts.append(f"最大{r['max_team_size']}人")
+        rendered.append(
+            {
+                "event_name": r["event_name"],
+                "meta": " ・ ".join(meta_parts),
+                "slots": slots_info,
+                "url": r.get("tickets_url") or "",
+                "_rank": best_rank,
+            }
+        )
+    return rendered
+
+
+def render_day_event_cards(
+    d, day_rows, group_size, hide_full, filter_types, filter_times, sort_mode="空き多い順"
+):
+    """1日分の演目カードを描画する。表示した演目数を返す（0なら何も描かない）。"""
+    rendered = build_day_events(day_rows, group_size, hide_full, filter_types, filter_times)
+    if not rendered:
+        return 0
+
+    if sort_mode == "演目名順":
+        rendered.sort(key=lambda x: x["event_name"])
+    else:
+        rendered.sort(key=lambda x: x["_rank"])
+
+    st.markdown(day_head_html(d, f"{len(rendered)} 演目"), unsafe_allow_html=True)
+    cards = []
+    for it in rendered:
+        chips = "".join(
+            f'<span class="chip" style="{STATUS_STYLE.get(si["status"], "")}">'
+            f'{escape(si["label"])}</span>'
+            for si in it["slots"]
+        )
+        meta_html = (
+            f'<div class="event-meta">{escape(it["meta"])}</div>' if it["meta"] else ""
+        )
+        btn = (
+            f'<a class="book-btn" href="{escape(it["url"])}" target="_blank">'
+            f"予約ページ{BOOK_ARROW}</a>"
+            if it["url"]
+            else ""
+        )
+        cards.append(
+            '<div class="event-card">'
+            f'<div class="event-name">{escape(it["event_name"])}</div>'
+            f"{meta_html}"
+            f'<div class="slot-chips">{chips}</div>'
+            f"{btn}"
+            "</div>"
+        )
+    st.markdown(
+        f'<div class="card-grid grid-events">{"".join(cards)}</div>',
+        unsafe_allow_html=True,
+    )
+    return len(rendered)
+
+
+def render_tab_date(group_size, hide_full, excluded, filter_types, filter_times):
     today = date.today()
 
     def next_sat(offset_weeks: int = 0) -> date:
@@ -886,6 +1151,10 @@ def render_tab_date(group_size, hide_full, excluded):
 
     render_excluded_banner(excluded)
 
+    sort_mode = st.segmented_control(
+        "並び順", ["空き多い順", "演目名順"], default="空き多い順", key="t2_sort"
+    ) or "空き多い順"
+
     st.markdown("---")
     st.caption(
         "各演目の空いている時間帯をすべて表示します。"
@@ -907,89 +1176,192 @@ def render_tab_date(group_size, hide_full, excluded):
             continue
         by_date.setdefault(r["date"], []).append(r)
 
-    if not by_date:
-        st.info("指定期間内に空き枠のある演目が見つかりませんでした。")
+    shown = 0
+    for date_str in sorted(by_date.keys()):
+        d = date.fromisoformat(date_str)
+        shown += render_day_event_cards(
+            d, by_date[date_str], group_size, hide_full,
+            filter_types, filter_times, sort_mode,
+        )
+
+    if shown == 0:
+        st.info("条件に合う空き枠のある演目が見つかりませんでした。絞り込みや期間を見直してみてください。")
+
+
+def render_event_day_slots(ev, slots, group_size, filter_times):
+    """カレンダーのドリルイン用：選んだ演目の、その日の時間枠をカードで表示する。"""
+    unit = ev["order_unit"]
+    slots = sorted(filter_slots(slots, filter_times), key=lambda s: s["time"])
+    if not slots:
+        st.info("この日にこの演目の枠はありませんでした。")
+        return
+    cards = []
+    for s in slots:
+        status, text = capacity_status(s["stock"], unit, group_size)
+        badge_style = STATUS_STYLE.get(status, "")
+        url = s.get("ticket_url") or ""
+        btn = (
+            f'<a class="book-btn" href="{escape(url)}" target="_blank">'
+            f"予約ページ{BOOK_ARROW}</a>"
+            if url
+            else ""
+        )
+        cards.append(
+            '<div class="slot-card">'
+            f'<div class="slot-time">{escape(s["time"])}</div>'
+            f'<span class="badge" style="{badge_style}">{escape(text)}</span>'
+            f"{btn}</div>"
+        )
+    st.markdown(
+        f'<div class="card-grid grid-slots">{"".join(cards)}</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def render_tab_calendar(ls, group_size, excluded, filter_times):
+    """選んだ1演目の空き状況を、月カレンダーのヒートマップで表示する。
+    緑=空きあり / 黄=わずか / 赤=満員 / グレー=開催なし。
+    日をタップするとその日の時間枠を下に表示する。"""
+    today = date.today()
+
+    with st.spinner("演目一覧を読み込み中..."):
+        events = get_filtered_event_list(excluded)
+    if events is None:
+        return
+    if not events:
+        st.warning("演目が見つかりませんでした。")
         return
 
-    for date_str in sorted(by_date.keys()):
-        day_rows = by_date[date_str]
-        d = date.fromisoformat(date_str)
+    # 演目選択（タブ1と共有）
+    ev = render_event_picker(ls, events, "cal_ev_pick")
+    event_name = ev["event_name"]
 
-        # 演目ごとに、表示するスロットを整形
-        rendered = []
-        for r in day_rows:
-            unit = r["order_unit"]
-            slots_info = []
-            ranks = []
-            for s in r["slots"]:
-                status, _text = capacity_status(s["stock"], unit, group_size)
-                ranks.append(STATUS_RANK[status])
-                if hide_full and (s["stock"] == 0):
+    # 対象月（year, month）をセッションに保持。既定は今月。
+    if "cal_year" not in st.session_state:
+        st.session_state["cal_year"] = today.year
+        st.session_state["cal_month"] = today.month
+
+    def shift_month(delta: int):
+        y, m = st.session_state["cal_year"], st.session_state["cal_month"]
+        m += delta
+        y += (m - 1) // 12
+        m = (m - 1) % 12 + 1
+        st.session_state["cal_year"], st.session_state["cal_month"] = y, m
+
+    cy, cm = st.session_state["cal_year"], st.session_state["cal_month"]
+
+    nav_prev, nav_label, nav_next = st.columns([1, 2, 1], gap="small")
+    with nav_prev:
+        if st.button("前の月", use_container_width=True, key="cal_prev"):
+            shift_month(-1)
+            st.rerun()
+    with nav_label:
+        st.markdown(
+            f'<div style="text-align:center;font-weight:800;font-size:1.1rem;'
+            f'padding-top:0.3rem">{cy}年{cm}月</div>',
+            unsafe_allow_html=True,
+        )
+    with nav_next:
+        if st.button("次の月", use_container_width=True, key="cal_next"):
+            shift_month(1)
+            st.rerun()
+
+    month_start = date(cy, cm, 1)
+    last_day = calendar.monthrange(cy, cm)[1]
+    month_end = date(cy, cm, last_day)
+
+    # その月の空き状況を取得（全日・2時間キャッシュ）→ 選んだ演目だけ抜き出す
+    with st.spinner(f"{cy}年{cm}月の「{event_name}」の空き状況を確認中..."):
+        try:
+            rows = get_schedule(month_start.isoformat(), month_end.isoformat(), False)
+        except Exception as e:
+            st.error(f"データ取得に失敗しました: {e}")
+            return
+
+    # 日付 → その演目のスロット一覧
+    slots_by_date = {}
+    for r in rows:
+        if r["event_name"] != event_name:
+            continue
+        slots_by_date.setdefault(r["date"], []).extend(r["slots"])
+
+    # 日付 → その日の状態（緑/黄/赤）。時間帯フィルタ後のスロットの最良状態。
+    status_by_date = {}
+    for date_str, slots in slots_by_date.items():
+        fslots = filter_slots(slots, filter_times)
+        if not fslots:
+            continue
+        best = min(
+            (capacity_status(s["stock"], ev["order_unit"], group_size)[0] for s in fslots),
+            key=lambda st_key: STATUS_RANK[st_key],
+        )
+        status_by_date[date_str] = best
+
+    # 日付セルの色をキー単位のCSSで指定（緑/黄/赤）
+    css_rules = []
+    for date_str, status in status_by_date.items():
+        bg, fg = CAL_COLORS.get(status, CAL_COLORS["unknown"])
+        css_rules.append(
+            f'.st-key-cal_{date_str} button{{background:{bg}!important;'
+            f'border-color:{bg}!important;color:{fg}!important}}'
+        )
+    if css_rules:
+        st.markdown(f"<style>{''.join(css_rules)}</style>", unsafe_allow_html=True)
+
+    # 凡例
+    st.markdown(
+        '<div class="cal-legend">'
+        '<span><i style="background:#3DA968"></i>空きあり</span>'
+        '<span><i style="background:#E8A13A"></i>残りわずか</span>'
+        '<span><i style="background:#E0635C"></i>満員</span>'
+        '<span><i style="background:#EAEef3"></i>開催なし</span>'
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
+    # 曜日見出し＋日付セルを keyed container に入れ、カレンダー専用CSSを当てる
+    with st.container(key="cal_grid"):
+        week_labels = ["日", "月", "火", "水", "木", "金", "土"]
+        head_cols = st.columns(7, gap="small")
+        for col, wl in zip(head_cols, week_labels):
+            color = "#D8453D" if wl == "日" else "#2F6FED" if wl == "土" else "#5A6678"
+            col.markdown(
+                f'<div style="text-align:center;font-weight:700;font-size:0.8rem;'
+                f'color:{color}">{wl}</div>',
+                unsafe_allow_html=True,
+            )
+
+        # 日曜始まりの月カレンダー（0は前後月の空白セル）
+        cal = calendar.Calendar(firstweekday=6)
+        for week in cal.monthdayscalendar(cy, cm):
+            cols = st.columns(7, gap="small")
+            for col, day in zip(cols, week):
+                if day == 0:
+                    col.write("")
                     continue
-                # 記号 + 時刻 + 残数（○=余裕 △=不足の可能性 ×=満員）
-                mark = STATUS_MARK[status]
-                stock_str = "満" if s["stock"] == 0 else f"{s['stock']}{unit}"
-                slots_info.append(
-                    {"label": f"{mark} {s['time']}（{stock_str}）", "status": status}
+                d = date(cy, cm, day)
+                date_str = d.isoformat()
+                is_past = d < today
+                col.button(
+                    str(day),
+                    key=f"cal_{date_str}",
+                    use_container_width=True,
+                    disabled=is_past,
+                    on_click=lambda ds=date_str: st.session_state.update(cal_selected=ds),
                 )
 
-            if not slots_info:
-                continue
+    st.caption("色のついた日付をタップすると、その日の時間枠を表示します。")
 
-            best_rank = min(ranks) if ranks else 3
-            meta_parts = []
-            if r["type"]:
-                meta_parts.append(r["type"])
-            if r["max_team_size"]:
-                meta_parts.append(f"最大{r['max_team_size']}人")
-            rendered.append(
-                {
-                    "event_name": r["event_name"],
-                    "meta": " ・ ".join(meta_parts),
-                    "slots": slots_info,
-                    "url": r.get("tickets_url") or "",
-                    "_rank": best_rank,
-                }
-            )
-
-        if not rendered:
-            continue
-
-        rendered.sort(key=lambda x: x["_rank"])
+    # ドリルイン：選択した日の時間枠を下に表示
+    selected = st.session_state.get("cal_selected")
+    if selected and selected.startswith(f"{cy}-{cm:02d}"):
+        d = date.fromisoformat(selected)
+        st.markdown("---")
         st.markdown(
-            day_head_html(d, f"{len(rendered)} 演目"),
+            day_head_html(d, format_event_label(ev)),
             unsafe_allow_html=True,
         )
-        cards = []
-        for it in rendered:
-            chips = "".join(
-                f'<span class="chip" style="{STATUS_STYLE.get(si["status"], "")}">'
-                f'{escape(si["label"])}</span>'
-                for si in it["slots"]
-            )
-            meta_html = (
-                f'<div class="event-meta">{escape(it["meta"])}</div>'
-                if it["meta"]
-                else ""
-            )
-            btn = (
-                f'<a class="book-btn" href="{escape(it["url"])}" target="_blank">'
-                f"予約ページ{BOOK_ARROW}</a>"
-                if it["url"]
-                else ""
-            )
-            cards.append(
-                '<div class="event-card">'
-                f'<div class="event-name">{escape(it["event_name"])}</div>'
-                f"{meta_html}"
-                f'<div class="slot-chips">{chips}</div>'
-                f"{btn}"
-                "</div>"
-            )
-        st.markdown(
-            f'<div class="card-grid grid-events">{"".join(cards)}</div>',
-            unsafe_allow_html=True,
-        )
+        render_event_day_slots(ev, slots_by_date.get(selected, []), group_size, filter_times)
 
 
 if __name__ == "__main__":

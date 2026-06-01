@@ -62,9 +62,16 @@ EXCLUDE_TITLE_KEYWORDS = ("街歩き",)
 
 ## UIの構成
 
-- **サイドバー**: 参加人数・満員非表示・除外演目設定（ポップアップ式チェックボックス）・更新ボタン
-- **タブ1「演目から探す」**: 演目ピッカー（ポップオーバー＋ラジオのタップ選択。iPhoneでキーボードが出ないよう`selectbox`をやめた） → 日付範囲 → 時間枠カードのグリッド表示
-- **タブ2「日付から探す」**: 日付範囲（クイック選択ボタン付き） → 日付ごとに演目カードを表示
+- **サイドバー**: 参加人数・満員非表示・**絞り込み（種別・時間帯）**・除外演目設定（ポップアップ式チェックボックス）・更新ボタン
+  - **絞り込み**（`render_filter_setting()`）: 種別（ホール型/ルーム型/その他）と時間帯（午前/午後/夜）を `st.pills`(multi) でタップ選択。**未選択＝絞り込みなし（全部表示）**。localStorage(`escape_filter_types`/`escape_filter_times`)に端末ごと保存。判定は `event_passes_type()` / `filter_slots()` / `slot_period()`。タブ1・タブ2・カレンダーの3つすべてに同じフィルタが効く
+- **タブ1「演目から探す」**: 演目ピッカー（ポップオーバー＋ラジオのタップ選択。iPhoneでキーボードが出ないよう`selectbox`をやめた） → 日付範囲 → 時間枠カードのグリッド表示。時間帯フィルタが枠に効く
+- **タブ2「日付から探す」**: 日付範囲（クイック選択ボタン付き）＋**並び順**（`st.segmented_control` で「空き多い順／演目名順」） → 日付ごとに演目カードを表示
+- **タブ3「カレンダー」**（`render_tab_calendar()`）: **1演目を選んで、その演目の空き状況を月カレンダーでヒートマップ表示**する。演目ピッカー（タブ1と共有）＋前の月/次の月。各日を `st.columns(7)` の `st.button` グリッドで描き、その日の最良ステータス（`capacity_status`）に応じて **緑=空きあり / 黄=残りわずか / 赤=満員 / グレー=開催なし**（`CAL_COLORS`）で塗る。日をタップすると下にその日の時間枠を表示（`render_event_day_slots()`）
+  - **演目選択はタブ1とカレンダーで共有**：真の状態は `st.session_state["sel_event"]`、各ピッカー（`ev_pick`/`cal_ev_pick`）はそれに追従。選択ロジックは `get_selected_event_name()` / `render_event_picker()`。保存は前と同じく on_change だけ・`_ev_user_set` ガード
+  - **セルの色付け方法**：各日ボタンに `key=f"cal_{日付}"` を付けると Streamlit が `st-key-cal_<日付>` クラスを付与するので、`<style>` で `.st-key-cal_2026-06-06 button{background:...!important}` のように**日付ごとに色を当てる**（`type="primary"` 等では4色を出せないため）
+  - **ハマりどころ**: `st.columns` はスマホ幅で既定だと縦積みになる。7列を横並びに保つため、カレンダーを `st.container(key="cal_grid")` で囲み、`.st-key-cal_grid [data-testid="stHorizontalBlock"]{flex-wrap:nowrap}` 等のCSSで上書きしている
+  - **タブ維持**：`st.tabs` の選択はフロント側状態で再実行をまたいで保持される（カレンダーで日付や演目を操作してもカレンダータブに留まる）
+- **タブ2の1日分の演目カード描画は `render_day_event_cards()` / `build_day_events()` に共通化**している
 - 除外中演目は各タブの日付エリア下に**開閉式（`st.expander`）の赤チップバナー**で表示（`render_excluded_banner()`）。演目が多いとき邪魔にならないよう既定は閉じる
 
 ## デザイン方針
