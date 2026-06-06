@@ -131,6 +131,17 @@ def _on_event_pick_change(ls: LocalStorage, widget_key: str) -> None:
     ls.setItem(LS_LAST_EVENT, chosen, key="set_last_event")
 
 
+def _on_event_clear(ls: LocalStorage) -> None:
+    """演目の選択を未選択に戻し、前回選んだ演目の記憶（localStorage）も消す。
+    タブ1とカレンダーは選択を共有しているので、両方のウィジェットを未選択にする。"""
+    st.session_state["_ev_user_set"] = True
+    st.session_state["sel_event"] = None
+    for k in ("ev_pick", "cal_ev_pick"):
+        if k in st.session_state:
+            st.session_state[k] = None
+    ls.setItem(LS_LAST_EVENT, "", key="clear_last_event")
+
+
 def _on_filter_types_change(ls: LocalStorage) -> None:
     # 種別・時間帯で別コールバックにする（同じrunで同じsetItemキーを二重に呼ぶと
     # StreamlitDuplicateElementKeyになるため、各保存は1回だけになるよう分ける）
@@ -921,28 +932,32 @@ def format_event_label(e) -> str:
     return "".join(parts)
 
 
-def get_selected_event_name(ls, names: list) -> str:
-    """タブ1とカレンダーで共有する「選択中の演目名」を返す。
-    ユーザーが触るまでは前回選んだ演目（localStorage）を既定にし続ける。"""
+def get_selected_event_name(ls, names: list):
+    """タブ1とカレンダーで共有する「選択中の演目名」を返す。未選択なら None。
+    ユーザーが触るまでは前回選んだ演目（localStorage）を既定にし続ける。
+    記憶がない（初回・またはクリア済み）場合は未選択で始める。"""
     if not st.session_state.get("_ev_user_set"):
         last_event = ls.getItem(LS_LAST_EVENT)
-        st.session_state["sel_event"] = last_event if last_event in names else names[0]
+        st.session_state["sel_event"] = last_event if last_event in names else None
     elif st.session_state.get("sel_event") not in names:
-        st.session_state["sel_event"] = names[0]
-    return st.session_state["sel_event"]
+        # 選んでいた演目が一覧から消えた（種別フィルタ等）→ 未選択に戻す
+        st.session_state["sel_event"] = None
+    return st.session_state.get("sel_event")
 
 
 def render_event_picker(ls, events, widget_key: str):
     """ポップオーバー＋ラジオのタップ選択で演目を選ぶ（キーボードを出さない）。
-    選択は sel_event（タブ1/カレンダー共有）を真として、各ウィジェットはそれに追従する。"""
+    選択は sel_event（タブ1/カレンダー共有）を真として、各ウィジェットはそれに追従する。
+    未選択のときは None を返す。"""
     names = [e["event_name"] for e in events]
     label_map = {e["event_name"]: format_event_label(e) for e in events}
 
     sel = get_selected_event_name(ls, names)
-    st.session_state[widget_key] = sel  # 共有状態にウィジェットを追従させる
+    st.session_state[widget_key] = sel  # 共有状態にウィジェットを追従させる（None=未選択）
 
+    picker_label = f"演目：{label_map[sel]}" if sel else "演目を選ぶ"
     with st.popover(
-        f"演目：{label_map[sel]}",
+        picker_label,
         icon=":material/theater_comedy:",
         use_container_width=True,
     ):
@@ -958,7 +973,20 @@ def render_event_picker(ls, events, widget_key: str):
                 label_visibility="collapsed",
             )
 
+    # 演目を選んでいるときだけ「選択をクリア」ボタンを出す
+    if sel:
+        st.button(
+            "選択中の演目をクリア",
+            icon=":material/close:",
+            key=f"{widget_key}_clear",
+            on_click=_on_event_clear,
+            args=(ls,),
+            use_container_width=True,
+        )
+
     chosen = st.session_state[widget_key]
+    if chosen is None:
+        return None
     return next(e for e in events if e["event_name"] == chosen)
 
 
@@ -974,6 +1002,12 @@ def render_date_range(key_prefix: str, default_end_days: int):
     def next_sat(offset_weeks: int = 0) -> date:
         days = (5 - today.weekday()) % 7
         return today + timedelta(days=days + offset_weeks * 7)
+
+    def on_start_change():
+        # 開始日を動かしたとき、終了日がそれより前のままだとエラーになり煩わしいので、
+        # 終了日を自動で追従させる（開始日と同じ日に合わせる）
+        if st.session_state.get(e_key) is not None and st.session_state[s_key] > st.session_state[e_key]:
+            st.session_state[e_key] = st.session_state[s_key]
 
     # 折りたたみ時もわかるよう、現在の期間をラベルに出す
     cur_s = st.session_state.get(s_key, today)
@@ -1008,12 +1042,30 @@ def render_date_range(key_prefix: str, default_end_days: int):
                 if st.button("来週", key=f"qs_{key_prefix}_e2", use_container_width=True):
                     st.session_state[e_key] = next_sat(1)
 
+        # クイック選択ボタンで開始日が終了日より後になった場合に備え、
+        # widget生成前に終了日を補正しておく（min_valueを下回るとエラーになるため）
+        if (
+            st.session_state.get(s_key) is not None
+            and st.session_state.get(e_key) is not None
+            and st.session_state[s_key] > st.session_state[e_key]
+        ):
+            st.session_state[e_key] = st.session_state[s_key]
+
         with date_row:
             c1, c2, c3 = st.columns([2, 2, 2])
             with c1:
-                start_d = st.date_input("期間（開始）", value=today, key=s_key)
+                start_d = st.date_input(
+                    "期間（開始）", value=today, key=s_key, on_change=on_start_change
+                )
             with c2:
-                end_d = st.date_input("期間（終了）", value=default_end, key=e_key)
+                # 終了日は開始日より前を選べないようにし、エラーが出ないようにする。
+                # 初期値(value)も必ず開始日以上にしておく（min_valueを下回るとエラーになるため）
+                end_d = st.date_input(
+                    "期間（終了）",
+                    value=max(default_end, start_d),
+                    key=e_key,
+                    min_value=start_d,
+                )
             with c3:
                 weekend_only = st.checkbox("土日のみ表示", value=True, key=we_key)
 
@@ -1048,6 +1100,9 @@ def render_tab_event(ls, group_size, hide_full, excluded, filter_types, filter_t
 
     # ── 演目選択：ポップオーバー＋タップ選択（タブ1とカレンダーで共有）──
     ev = render_event_picker(ls, events, "ev_pick")
+    if ev is None:
+        st.info("上の「演目を選ぶ」から、空き状況を見たい演目を選んでください。")
+        return
     unit = ev["order_unit"]
 
     start_d, end_d, weekend_only = render_date_range("t1", 60)
@@ -1324,6 +1379,9 @@ def render_tab_calendar(ls, group_size, excluded, filter_types, filter_times):
 
     # 演目選択（タブ1と共有）
     ev = render_event_picker(ls, events, "cal_ev_pick")
+    if ev is None:
+        st.info("上の「演目を選ぶ」から、カレンダーで見たい演目を選んでください。")
+        return
     event_name = ev["event_name"]
 
     # 対象月（year, month）をセッションに保持。既定は今月。
