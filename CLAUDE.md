@@ -2,97 +2,96 @@
 
 ## アプリの概要
 
-名古屋のリアル脱出ゲームのチケット空き状況を確認する Streamlit アプリ。
+名古屋のリアル脱出ゲームのチケット空き状況を確認するアプリ。
 
-- デプロイ先: **Streamlit Community Cloud**（Vercel は使わない）。公開URL `https://escapefromtickets.streamlit.app/`
-- ブランチ: `main` のみ。デプロイはプッシュで自動反映
-- **iPhoneホーム画面アイコンは GitHub Pages の入口ページ（`docs/`）で出している**（後述）
+- **構成: GitHub Pages の静的サイト（HTML/CSS/JS）**。サーバー無し。
+  - 公開URL（ホーム画面アイコンの飛び先）: `https://tsuka911.github.io/escape/`
+  - 空き状況は**ブラウザから公式API（`api.scrapmagazine.com`）を直接ライブ取得**する（CORS `*` 許可を確認済み）。だから「起動待ち」が無い・常に最新が取れる
+  - 演目メタ情報（種別・最大人数・随時判定）だけは公式サイト `realdgame.jp` のHTML由来でブラウザから直接取れない（CORS不可）ため、**GitHub Actions が週1回 `docs/data/catalog.json` に焼き出す**
+- ブランチ: `main` のみ。GitHub Pages 設定は Settings→Pages→`main`ブランチ`/docs`
+- **旧構成（Streamlit Community Cloud）は引退**。理由: 12時間アクセスが無いとスリープし、起動に数十秒待たされるため。`app.py`/`scraper.py` は残してあるがデプロイ対象ではなく、`build_catalog.py` がメタ生成に `scraper.py` を流用するだけ
 
 ## ファイル構成と役割
 
 | ファイル | 役割 |
 |---|---|
-| `app.py` | Streamlit の UI 全体。CSS・カード描画・設定UIを含む |
-| `scraper.py` | 公式サイトのスクレイピングとチケットAPIの呼び出し |
-| `data/cache.json` | スクレイピング・APIのキャッシュ（git管理外） |
-| `data/user_settings.json` | 旧ユーザー設定。現在は**ブラウザのlocalStorage**に保存。これは新規端末への引き継ぎ用の初期値としてのみ参照（git管理外） |
-| `.streamlit/config.toml` | テーマ（背景 `#F5F7FA`・サイドバー `#FBFCFE`・青アクセント `#2F6FED`） |
-| `icon.png` | Streamlitのページアイコン（favicon）。`app.py` の `st.set_page_config(page_icon=...)` で使用 |
-| `docs/index.html` | **GitHub Pages の入口ページ**（iPhoneホーム画面アイコン用） |
-| `docs/icon.png` | 入口ページが使うホーム画面アイコン（180×180） |
+| `docs/index.html` | **本体アプリのHTML土台**（ヘッダー・画面切替・設定パネル・3ビューのコンテナ）。iPhoneホーム画面アイコンの `apple-touch-icon` もここ |
+| `docs/app.js` | **アプリ本体のロジック**。catalog.json読込・公式APIへのライブfetch・3ビュー描画・localStorage設定・カレンダー |
+| `docs/style.css` | 全スタイル（A:クリーン トーン。旧 `app.py` の `inject_css()` から移植） |
+| `docs/data/catalog.json` | **週1回ビルドの演目カタログ**（updated_at・演目シード一覧・メタ索引 by_url/by_title）。git管理する（Actionsが自動コミット） |
+| `docs/icon.png` | ホーム画面アイコン（180×180） |
+| `build_catalog.py` | catalog.json を生成するビルドスクリプト。`scraper.py` の `fetch_event_meta()`/`list_events()` を流用 |
+| `.github/workflows/build-catalog.yml` | 週1回＋手動＋push時に `build_catalog.py` を実行し catalog.json をコミット |
+| `scraper.py` | 公式サイトのスクレイピング＆API呼び出し。**今は `build_catalog.py` からのみ使用** |
+| `app.py` | 旧Streamlit UI。**引退（デプロイしない）**。ロジックの参照元として残置 |
+| `.streamlit/`, `requirements.txt` | 旧Streamlit用。残置 |
 
-## データ取得の仕組み
+## データ取得の仕組み（重要）
 
-- **演目メタ情報**（種別・最大人数・随時スタート判定）: `fetch_event_meta()` で公式サイトをスクレイピング。24時間キャッシュ
-- **チケット・空き状況**: `fetch_tickets_for_date()` で公式API（`api.scrapmagazine.com`）を叩く。2時間キャッシュ
-- キャッシュは `data/cache.json` に保存。Streamlit の `@st.cache_data(ttl=7200)` でメモリにも2時間保持
-- **2層キャッシュに注意**: ①Streamlitメモリ（`@st.cache_data`）と ②scraperのファイル（`data/cache.json`）の2層がある。「データを今すぐ更新」ボタンは両方をクリアする必要があるため、`scraper.clear_cache()`（ファイル削除）＋ `st.cache_data.clear()`（メモリ）の両方を呼ぶ。片方だけだと最終更新時刻が変わらない
+2系統に分かれている：
 
-## ユーザー設定の永続化（localStorage・重要・ハマりどころ）
+1. **演目メタ情報**（種別=ホール型/ルーム型・最大人数・随時スタート判定）
+   - 元は `realdgame.jp` のHTML。ブラウザからは**CORSで取れない**ので、GitHub Actionsが週1回 `build_catalog.py` を回して `docs/data/catalog.json` に書き出す
+   - メタは数週間〜数ヶ月に1回しか変わらないので週1で十分。新演目が出たらワークフローを手動実行（`workflow_dispatch`）すれば即更新できる
+2. **チケット・空き状況**
+   - `docs/app.js` の `fetchTicketsForDate()` が**ブラウザから公式API（`api.scrapmagazine.com`）を直接fetch**（pagination込み）。ユーザー操作（演目選択・検索ボタン・月送り）が起点
+   - 取得結果は **メモリ＋localStorage に10分キャッシュ**（`escape_tickets_<日付>` / `TICKET_TTL_MS`）。「データを今すぐ更新」ボタンで全キャッシュを消して再取得
+   - 複数日は `fetchSchedule()` が同時実行数4で並列取得
 
-- 除外演目・前回選んだ演目・参加人数は **ブラウザのlocalStorage** に端末ごとに保存する（`streamlit-local-storage` パッケージ）。
-  - **なぜファイルでなくlocalStorageか**: Streamlit Community Cloud のディスクは一時的で、アプリがスリープ/再起動するたびにファイルが消える。サーバー側ファイルだと設定が毎回リセットされる（しかも全ユーザー共通になる）。localStorageなら「自分のiPhone/Mac」に残る。streamlit.appは同一オリジンなので、入口ページ(`docs/`)から何度起動しても保持される。
-  - キー: `escape_excluded_events` / `escape_last_event` / `escape_group_size`（`app.py` の `LS_*` 定数）。
-  - 旧 `data/user_settings.json` は、新規端末への**初回引き継ぎ用の初期値**としてのみ読む（`_load_excluded_from_file()`）。
-- **ハマりどころ①「読み込み直後の上書き事故」**: localStorageコンポーネントはページ読み込み直後の最初の実行ではまだ中身が空。その空状態で設定ウィジェットを作ると「空＝既定値」で初期化され、それを保存してしまうと本来の設定を消す。
-  - **対策**: 保存は必ず **ユーザー操作時（`on_change` コールバック）だけ** 行う。描画のたびには保存しない。各設定に `_xxx_user_set` フラグを持ち、ユーザーが触るまでは毎回localStorageの保存値をセットし直す（読めた時点で正しく反映される）。`_on_group_size_change` / `_on_exclude_change` / `_on_event_pick_change` 参照。
-- **ハマりどころ②**: `st.stop()` でロード完了を待つ方式は **不可**。`st.stop()` がlocalStorageコンポーネントをアンマウントしてしまい（コンソールに `unregistered ComponentInstance` 警告）、データが永久に届かず固まる。待ちゲートは作らないこと。
+- **CORS依存に注意**: 公式APIが将来CORSを絞るとライブ取得が止まる（可能性は低い）。その場合の保険は「Actionsで空き状況も定期スナップショット化してフォールバック」。現状は未実装
+- ロジックは旧 `scraper.py`/`app.py` からJSへ1対1移植（`capacityStatus`/`slotPeriod`/`typeCategory`/`eventPassesType`/`filterSlots`/`normalizeTitle`/`lookupMeta`/`buildDayEvents` など）。挙動を変えるときは両方の整合に注意
+
+## ユーザー設定の永続化（localStorage）
+
+- 参加人数・満員非表示・絞り込み（種別/時間帯）・除外演目・前回選んだ演目を **ブラウザのlocalStorage** に端末ごと保存（`app.js` の `LS` 定数）。
+  - キー: `escape_group_size` / `escape_hide_full` / `escape_filter_types` / `escape_filter_times` / `escape_excluded_events` / `escape_last_event`
+  - **JSではネイティブに扱える**ので、旧Streamlit版にあった「読み込み直後の上書き事故」対策（`_xxx_user_set` フラグ・on_change限定保存・`st.stop()`禁止）は**不要になった**。`saveSetting()` で直接読み書きする
+  - 注意: 旧Streamlit版は `streamlit.app` オリジンに保存していた。静的サイトは `github.io` オリジンなので、移行時に既存端末の設定は一度だけリセットされる（実害小）
 
 ## iPhoneホーム画面アイコン（重要・ハマりどころ）
 
-- iOS Safariは「ホーム画面に追加」時、**ページを最初に読み込んだHTMLの`<head>`にある`apple-touch-icon`しか読まない**。JSで後から差し込んだものは無視する。
-- そして **Streamlit Cloud はアプリの最初のHTMLの`<head>`を編集させてくれない**。そのため Streamlit 内（`app.py`）でいくら工夫してもiOSアイコンは出せない。
-- 解決策: **GitHub Pages の入口ページ `docs/index.html`** を使う。これは最初のHTMLに`apple-touch-icon`を持ち、standalone起動時はStreamlitアプリへ自動転送する軽量ページ。
+- iOS Safariは「ホーム画面に追加」時、**最初に読み込んだHTMLの`<head>`にある`apple-touch-icon`しか読まない**。JSで後から差し込んだものは無視する。
+- いま入口（`docs/index.html`）が本体アプリそのものなので、その`<head>`に `apple-touch-icon` がある（条件を満たす）。
   - GitHub Pages設定: Settings→Pages→`main`ブランチ`/docs`
-  - **ホーム画面に追加するURLは入口ページ** `https://tsuka911.github.io/escape/`（Streamlit直URLではない）
-  - ホーム画面アイコンを変える時は `docs/icon.png` を180×180で差し替える
-- 試したが効かなかった方法（`app.py`内でやろうとしない・再挑戦しないこと）: `st.markdown`で`<link>`（除去される）／`data:`URI（iOSが受け付けない）／`st.html`でbodyに挿入（headに入らない）／`st.iframe`/`components.html`でJSによるhead挿入（iOSは後からJS挿入したアイコンを無視）／`/app/static/`配信（Cloudでは画像でなくアプリHTMLが返る）。
+  - **ホーム画面に追加するURLは** `https://tsuka911.github.io/escape/`
+  - アイコンを変える時は `docs/icon.png` を180×180で差し替える
+- （旧Streamlit版で「Streamlitの`<head>`を編集できずアイコンが出せない」問題があったが、静的サイト化で解消。`app.py`内でアイコンを出そうとしないこと＝もう不要）
 
 ## 検索から除外される演目
 
-`scraper.py` 冒頭の `EXCLUDE_TITLE_KEYWORDS` でキーワード除外（コードレベル）:
+- コードレベルのキーワード除外: `scraper.py` の `EXCLUDE_TITLE_KEYWORDS = ("街歩き",)`、`app.js` の `EXCLUDE_TITLE_KEYWORDS = ['街歩き']`（両方に同じ定義。片方だけ直さないこと）
+- 随時スタートの演目は `is_anytime` フラグで除外（`app.js` の `integrateRows()` がメタを見て除外）
+- ユーザーが手動で除外した演目は localStorage（`escape_excluded_events`）に保存
 
-```python
-EXCLUDE_TITLE_KEYWORDS = ("街歩き",)
-```
+## UIの構成（docs/app.js）
 
-- 随時スタートの演目も `is_anytime` フラグで除外（`exclude_anytime=True`）
-
-ユーザーが手動で除外したい演目は `data/user_settings.json` に保存され、`app.py` の `load_excluded_events()` / `save_excluded_events()` で読み書きする。
-
-## UIの構成
-
-- **サイドバー**: 参加人数・満員非表示・**絞り込み（種別・時間帯）**・除外演目設定（ポップアップ式チェックボックス）・更新ボタン
-  - **絞り込み**（`render_filter_setting()`）: 種別（ホール型/ルーム型/その他）と時間帯（午前/午後/夜）を `st.pills`(multi) でタップ選択。**未選択＝絞り込みなし（全部表示）**。localStorage(`escape_filter_types`/`escape_filter_times`)に端末ごと保存。判定は `event_passes_type()` / `filter_slots()` / `slot_period()`。タブ1・タブ2・カレンダーの3つすべてに同じフィルタが効く
-- **画面切り替え（旧タブ）**: 上部の3つの切り替えボタン（`st.container(key="view_switch")` 内の `st.button`）。**選択は `st.session_state["active_view"]` に保持**し、`if/elif` で該当ビューだけ描画する。`st.tabs` は再実行のたびに選択がリセットされ（フィルタ変更・月送り・演目選択など）別画面に飛んでしまうため**使わない**。選択中は `type="primary"`（青）。青背景＋青文字で読めなくなるのを防ぐため hover/focus/active で文字を白(!important)に固定している
-- **日付範囲は開閉式で共通化**（`render_date_range(key_prefix, default_end_days)`）: 期間（開始/終了）＋土日のみ＋クイック選択（今週/来週）を `st.expander` にまとめ、**既定は閉じる**（スマホでボタンが縦積みになって検索結果が押し下げられるのを防ぐ）。閉じていても現在の期間がラベルに出る（クイック選択直後はラベルが1テンポ遅れるが日付入力欄は即時正確）。タブ1（`t1`/60日）とタブ2（`t2`/30日）で共有
-- **タブ1「演目から探す」**: 演目ピッカー（ポップオーバー＋ラジオのタップ選択。iPhoneでキーボードが出ないよう`selectbox`をやめた） → 日付範囲（開閉式・クイック選択付き） → 時間枠カードのグリッド表示。時間帯フィルタが枠に効く
-- **タブ2「日付から探す」**: 日付範囲（開閉式・クイック選択付き）＋**並び順**（`st.segmented_control` で「空き多い順／演目名順」） → 日付ごとに演目カードを表示
-- **タブ3「カレンダー」**（`render_tab_calendar()`）: **1演目を選んで、その演目の空き状況を月カレンダーでヒートマップ表示**する。演目ピッカー（タブ1と共有）＋前の月/次の月。各日を `st.columns(7)` の `st.button` グリッドで描き、その日の最良ステータス（`capacity_status`）に応じて **緑=空きあり / 黄=残りわずか / 赤=満員 / グレー=開催なし**（`CAL_COLORS`）で塗る。日をタップすると下にその日の時間枠を表示（`render_event_day_slots()`）
-  - **演目選択はタブ1とカレンダーで共有**：真の状態は `st.session_state["sel_event"]`、各ピッカー（`ev_pick`/`cal_ev_pick`）はそれに追従。選択ロジックは `get_selected_event_name()` / `render_event_picker()`。保存は前と同じく on_change だけ・`_ev_user_set` ガード
-  - **セルの色付け方法**：各日ボタンに `key=f"cal_{日付}"` を付けると Streamlit が `st-key-cal_<日付>` クラスを付与するので、`<style>` で `.st-key-cal_2026-06-06 button{background:...!important}` のように**日付ごとに色を当てる**（`type="primary"` 等では4色を出せないため）
-  - **ハマりどころ**: `st.columns` はスマホ幅で既定だと縦積みになる。7列を横並びに保つため、カレンダーを `st.container(key="cal_grid")` で囲み、`.st-key-cal_grid [data-testid="stHorizontalBlock"]{flex-wrap:nowrap}` 等のCSSで上書きしている
-- **タブ2の1日分の演目カード描画は `render_day_event_cards()` / `build_day_events()` に共通化**している
-- 除外中演目は各タブの日付エリア下に**開閉式（`st.expander`）の赤チップバナー**で表示（`render_excluded_banner()`）。演目が多いとき邪魔にならないよう既定は閉じる
+- **設定パネル**（`<details class="panel">`、旧サイドバー相当）: 参加人数ステッパー・満員非表示・絞り込み（種別/時間帯の `pill`、未選択＝全部表示）・除外演目チェックリスト・「データを今すぐ更新」。スマホ主体なので上部の開閉式パネルにした
+- **画面切り替え**: 上部の3ボタン（`.view-switch`）。`S.activeView`（`event`/`date`/`calendar`）を保持し `renderActiveView()` で該当ビューだけ描画
+- **演目から探す**（`renderEventView`）: 演目ピッカー（モーダルのタップ選択。キーボードを出さない）→ 日付範囲（開閉式・クイック選択）→「この条件で空きを検索」ボタンで `runEventSearch()` がライブ取得 → 時間枠カード
+- **日付から探す**（`renderDateView`）: 日付範囲＋並び順（`.segmented` 空き多い順/演目名順）→「この期間で空きを検索」→ 日別の演目カード（`dayEventCardsHTML`/`buildDayEvents`）
+- **カレンダー**（`renderCalendarView`）: 1演目を選んで月ヒートマップ（緑=空きあり/黄=わずか/赤=満員/グレー=開催なし）。日タップで下にその日の枠（`renderCalDrill`）。演目選択は「演目から探す」と `S.selEvent` で共有
+- **取得トリガーはユーザー操作**（演目選択・検索ボタン・月送り）。開いた瞬間の自動フェッチはしない方針
+- 除外中演目は各ビューで開閉式バナー（`excludedBannerHTML`）
 
 ## デザイン方針
 
-「A:クリーン」トーンで統一（白×青の洗練版）。Claude Design でトーン比較して決定した方向。
+「A:クリーン」トーン（白×青）。`docs/style.css` に集約。
 
-- 絵文字は使わない。アイコンは Material Symbols（`:material/xxx:`）か SVG で統一
-- フォントは **Zen Kaku Gothic New**（Google Fonts を `@import`）。CSS変数 `--app-font` で管理
-  - **注意**: `st.markdown` で描いたカスタムHTML（日付見出し・時刻・演目名・バッジ等）はStreamlit既定フォント(Source Sans)に上書きされるため、それらのクラスにだけ `font-family: var(--app-font) !important` を当てている
-  - **`*`（全要素）には当てない**。Material Symbols のアイコン専用フォントまで上書きしてしまい、アイコンが文字名（例: `theater_comedy`）で表示されてしまうため
-- カラートークンは `:root` のCSS変数で管理（`--accent: #2F6FED` 等）
-- カード表示: `.slot-card`（タブ1の時間枠）、`.event-card`（タブ2の演目）。角丸12・軽いシャドウ
-- 空き状況バッジ: 緑（ok）・黄（warn）・赤（full）・グレー（unknown）。左に状態ドット（`::before`）。`warn` は色のみで表現しテキストは「残りN人」（「N人には不足」は付けない）
-- 日付見出し `day_head_html()`: 曜日カラー（土=青 / 日=赤）＋罫線＋右側に「空きN枠 / N演目」。タブ1/2共通
-- 予約ボタン `.book-btn`: 単色アクセント＋外部リンク矢印SVG（`BOOK_ARROW`）
-- 演目メタ情報はチップ表示（`.meta-row` / `.meta-chip`）
-- サイドバーは Streamlit 標準ウィジェットを `data-testid` セレクタでモック風に寄せている（人数ステッパー・チェックボックス・ポップオーバー・更新ボタン）。完全一致はできず、Streamlitバージョンで `data-testid` が変わると一部効かなくなる点に注意
-- `inject_css()` に全カスタムCSSをまとめている
+- 絵文字は使わない。アイコンはインラインSVGで統一
+- フォントは **Zen Kaku Gothic New**（Google Fonts を `@import`）。CSS変数 `--app-font`
+- カラートークンは `:root` のCSS変数（`--accent: #2F6FED` 等）
+- カード: `.slot-card`（時間枠）/`.event-card`（演目）。角丸12・軽いシャドウ
+- 空き状況バッジ/チップ: 緑(`s-ok`)・黄(`s-warn`)・赤(`s-full`)・グレー(`s-unknown`)
+- カレンダーのヒートマップ色は `.cal-cell.s-ok/.s-warn/.s-full/.s-none`（CSS変数 `--cal-*`）
+- 日付見出し `dayHeadHTML()`: 曜日カラー（土=青/日=赤）＋罫線＋右側ヒント。右側が長い場合は省略表示（`.day-count` の ellipsis）
+
+## ローカルでの動かし方・検証
+
+- 静的サイトの確認: `python3 -m http.server 8765 --directory docs` で配信し `http://localhost:8765/` を開く（`data/catalog.json` への相対fetchのためサーバー配信が必要）
+- catalog.json の再生成: `python3 build_catalog.py`
+- preview系ツールでの検証ポイント: 3ビュー表示・ライブfetch（ネットワークに `api.scrapmagazine.com` への直接リクエスト）・絞り込み/除外/並び順・カレンダー色分けとドリルイン・localStorage保持・スマホ幅で横スクロールが出ないこと
 
 ## 将来の予定
 
 - Notion の「体験済みイベントリスト」と照合して未体験のみ検索対象にする機能
-  - 現在は `load_excluded_events()` がlocalStorageから読む実装になっているので、ここを Notion API 取得に差し替えれば対応できる
+- 公式APIがCORSを絞った場合の保険として、空き状況の定期スナップショット化（フォールバック）

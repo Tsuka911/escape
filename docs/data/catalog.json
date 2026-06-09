@@ -1,0 +1,625 @@
+{
+  "updated_at": "2026-06-09T21:16:14+09:00",
+  "events": [
+    {
+      "event_name": "『アルティメットビンゴ 〜終わらないビンゴパーティー〜』",
+      "raw_name": "【名古屋店】『アルティメットビンゴ 〜終わらないビンゴパーティー〜』",
+      "event_url": "https://www.scrapmagazine.com/s/ultimate-bingo/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=02bingop",
+      "type": "ホール型",
+      "max_team_size": 6,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "『コロコロジック』",
+      "raw_name": "【名古屋店】『コロコロジック』",
+      "event_url": "https://realdgame.jp/shop/nagoya/events/krklgc/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=krklgc",
+      "type": null,
+      "max_team_size": 3,
+      "order_unit": "組"
+    },
+    {
+      "event_name": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
+      "event_url": "https://realdgame.jp/s/conan2026/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=01conan26",
+      "type": "ホール型",
+      "max_team_size": 6,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム×学園アイドルマスター『人狼潜む文化祭からの脱出』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム×学園アイドルマスター『人狼潜む文化祭からの脱出』",
+      "event_url": "https://realdgame.jp/s/gkmas/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=03gkms26",
+      "type": "ホール型",
+      "max_team_size": null,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『Escape from The RED ROOM』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『Escape from The RED ROOM』",
+      "event_url": "https://realdgame.jp/shop/nagoya/events/red/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10red",
+      "type": "ルーム型",
+      "max_team_size": 6,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
+      "event_url": "https://realdgame.jp/shop/nagoya/events/jikken26/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10jikken26",
+      "type": "ホール型",
+      "max_team_size": 4,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『さよなら、僕らのマジックアワー』（リバイバル）",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『さよなら、僕らのマジックアワー』（リバイバル）",
+      "event_url": "https://realdgame.jp/s/bokumaji/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=01maghou",
+      "type": "ホール型",
+      "max_team_size": 4,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『アイテムだらけの部屋からの脱出』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『アイテムだらけの部屋からの脱出』",
+      "event_url": "https://realdgame.jp/s/item/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10itemd",
+      "type": "ルーム型",
+      "max_team_size": 8,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『ゾンビに囲まれたホームセンターからの脱出』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『ゾンビに囲まれたホームセンターからの脱出』",
+      "event_url": "https://realdgame.jp/s/zombie-homecenter/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=03zmbhmc",
+      "type": "ホール型",
+      "max_team_size": 4,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『パズルルームからの脱出』（リバイバル）",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『パズルルームからの脱出』（リバイバル）",
+      "event_url": "https://realdgame.jp/shop/nagoya/events/puzzle12025/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10pzl126",
+      "type": "ルーム型",
+      "max_team_size": 10,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『マグノリア銀行からの脱出』（リバイバル）",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『マグノリア銀行からの脱出』（リバイバル）",
+      "event_url": "https://realdgame.jp/shop/nagoya/events/magnolia2025/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10bank25",
+      "type": "ルーム型",
+      "max_team_size": 6,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『謎のタワーマンションからの脱出』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『謎のタワーマンションからの脱出』",
+      "event_url": "https://realdgame.jp/towermansion/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=nazotower2",
+      "type": "ルーム型",
+      "max_team_size": 10,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『謎の壁からの脱出』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『謎の壁からの脱出』",
+      "event_url": "https://realdgame.jp/shop/nagoya/events/nazokabe/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=nazokabe2",
+      "type": null,
+      "max_team_size": 4,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『謎の部屋からの脱出』（リバイバル）",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『謎の部屋からの脱出』（リバイバル）",
+      "event_url": "https://realdgame.jp/shop/nagoya/events/nazobeya24/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10nazob24",
+      "type": "ルーム型",
+      "max_team_size": 10,
+      "order_unit": "人"
+    }
+  ],
+  "meta_by_url": {
+    "https://realdgame.jp/shop/nagoya/events/kansyasai2026/": {
+      "title": "リアル脱出ゲーム名古屋店感謝祭2026",
+      "type": null,
+      "start_type": "一斉スタート",
+      "max_team_size": null,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/s/cthulhu/": {
+      "title": "リアル脱出ゲーム×クトゥルフ神話『狂気の山脈からの脱出』",
+      "type": "ホール型",
+      "start_type": "随時スタート",
+      "max_team_size": 4,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/s/zombie-homecenter/": {
+      "title": "リアル脱出ゲーム『ゾンビに囲まれたホームセンターからの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "https://www.scrapmagazine.com/s/ultimate-bingo/": {
+      "title": "『アルティメットビンゴ 〜終わらないビンゴパーティー〜』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/s/conan2026/": {
+      "title": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/s/gkmas/": {
+      "title": "リアル脱出ゲーム×学園アイドルマスター『人狼潜む文化祭からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": null,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/s/bokumaji/": {
+      "title": "さよなら、僕らのマジックアワー（リバイバル）",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/jikken26/": {
+      "title": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/s/tensura2026/": {
+      "title": "リアル脱出ゲーム×転生したらスライムだった件『閉ざされたテンペストダンジョン（異世界迷宮）からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/s/houkago/": {
+      "title": "リアル脱出ゲーム『最後の放課後からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/krklgc/": {
+      "title": "『コロコロジック』",
+      "type": null,
+      "start_type": "一斉スタート",
+      "max_team_size": 3,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/asasin26/": {
+      "title": "リアル脱出ゲーム×名探偵コナン FILE.4『黒き暗殺者からの脱出』（リバイバル）",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/s/spymmb/": {
+      "title": "MYSTERY MAIL BOX『スパイミッションからの脱出-パンドラの箱と裏切りの銃弾-』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/nazodarake/": {
+      "title": "リアル脱出ゲーム『ナゾだらけの部屋からの脱出』（リバイバル）",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": 4,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/puzzle12025/": {
+      "title": "リアル脱出ゲーム『パズルルームからの脱出』（リバイバル）",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 10,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/s/interview/": {
+      "title": "リアル脱出ゲーム『絶対にバレてはいけない嘘だらけのインタビュールームからの脱出』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/s/item/": {
+      "title": "リアル脱出ゲーム『アイテムだらけの部屋からの脱出』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 8,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/magnolia2025/": {
+      "title": "リアル脱出ゲーム『マグノリア銀行からの脱出』（リバイバル）",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/tower_mansion/": {
+      "title": "リアル脱出ゲーム『謎のタワーマンションからの脱出』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 10,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/nazobeya24/": {
+      "title": "リアル脱出ゲーム『謎の部屋からの脱出』（リバイバル）",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 10,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/red/": {
+      "title": "リアル脱出ゲーム『Escape from The RED ROOM』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/nazokabe/": {
+      "title": "リアル脱出ゲーム『謎の壁からの脱出』",
+      "type": null,
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/chinbotsusen/": {
+      "title": "リアル脱出ゲーム『ある沈没船からの脱出』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": 2,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/genba_sousa/": {
+      "title": "現場捜査ゲーム『演じすぎた男』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": 3,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/mystery_tower/": {
+      "title": "TOWER GAME Series『MYSTERY TOWER ミステリータワーからの脱出』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": 3,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/s/beat_tower/": {
+      "title": "TOWER GAME Series『BEAT TOWER ビートタワーからの脱出』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": 3,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/osu_nazo/": {
+      "title": "ナゾトキ街歩きゲーム『なごや大須謎解き食べ歩き〜でらうまい謎はいかが？〜』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/snoopy1/": {
+      "title": "SCRAP×SNOOPY 謎解きPROJECT『スヌーピーと謎解きサーカス団』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/snoopy2/": {
+      "title": "SCRAP×SNOOPY 謎解きPROJECT『スヌーピーと秘密のレシピ』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/snoopy3/": {
+      "title": "SCRAP×SNOOPY 謎解きPROJECT『スヌーピーと不思議な絵』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/s/tensura/": {
+      "title": "リアル脱出ゲーム×転生したらスライムだった件『謀略のテンペストサーカスからの脱出』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/tosochu_gm/": {
+      "title": "リアル脱出ゲーム ×逃走中グレートミッション 『ハンターだらけのクロノスランドからの脱出』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/layton_mmb/": {
+      "title": "MYSTERY MAIL BOX×レイトン ミステリー探偵社『カトリーエイルと死者からの手紙』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/nazocon/": {
+      "title": "MYSTERY MAIL BOX 『ナゾコンからの挑戦状』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/mysteryman/": {
+      "title": "Mystery Mail Box『Mystery Manからの招待状』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    }
+  },
+  "meta_by_title": {
+    "リアル脱出ゲーム名古屋店感謝祭2026": {
+      "title": "リアル脱出ゲーム名古屋店感謝祭2026",
+      "type": null,
+      "start_type": "一斉スタート",
+      "max_team_size": null,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム×クトゥルフ神話「狂気の山脈からの脱出」": {
+      "title": "リアル脱出ゲーム×クトゥルフ神話『狂気の山脈からの脱出』",
+      "type": "ホール型",
+      "start_type": "随時スタート",
+      "max_team_size": 4,
+      "is_anytime": true
+    },
+    "リアル脱出ゲーム「ゾンビに囲まれたホームセンターからの脱出」": {
+      "title": "リアル脱出ゲーム『ゾンビに囲まれたホームセンターからの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "「アルティメットビンゴ〜終わらないビンゴパーティー〜」": {
+      "title": "『アルティメットビンゴ 〜終わらないビンゴパーティー〜』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム×名探偵コナン「疾風の追走からの脱出」": {
+      "title": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム×学園アイドルマスター「人狼潜む文化祭からの脱出」": {
+      "title": "リアル脱出ゲーム×学園アイドルマスター『人狼潜む文化祭からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": null,
+      "is_anytime": false
+    },
+    "さよなら、僕らのマジックアワー（リバイバル）": {
+      "title": "さよなら、僕らのマジックアワー（リバイバル）",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「ある実験室からの脱出」（リバイバル）": {
+      "title": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム×転生したらスライムだった件「閉ざされたテンペストダンジョン（異世界迷宮）からの脱出」": {
+      "title": "リアル脱出ゲーム×転生したらスライムだった件『閉ざされたテンペストダンジョン（異世界迷宮）からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「最後の放課後からの脱出」": {
+      "title": "リアル脱出ゲーム『最後の放課後からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "「コロコロジック」": {
+      "title": "『コロコロジック』",
+      "type": null,
+      "start_type": "一斉スタート",
+      "max_team_size": 3,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム×名探偵コナンFILE.4「黒き暗殺者からの脱出」（リバイバル）": {
+      "title": "リアル脱出ゲーム×名探偵コナン FILE.4『黒き暗殺者からの脱出』（リバイバル）",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "MYSTERYMAILBOX「スパイミッションからの脱出-パンドラの箱と裏切りの銃弾-」": {
+      "title": "MYSTERY MAIL BOX『スパイミッションからの脱出-パンドラの箱と裏切りの銃弾-』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "リアル脱出ゲーム「ナゾだらけの部屋からの脱出」（リバイバル）": {
+      "title": "リアル脱出ゲーム『ナゾだらけの部屋からの脱出』（リバイバル）",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": 4,
+      "is_anytime": true
+    },
+    "リアル脱出ゲーム「パズルルームからの脱出」（リバイバル）": {
+      "title": "リアル脱出ゲーム『パズルルームからの脱出』（リバイバル）",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 10,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「絶対にバレてはいけない嘘だらけのインタビュールームからの脱出」": {
+      "title": "リアル脱出ゲーム『絶対にバレてはいけない嘘だらけのインタビュールームからの脱出』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「アイテムだらけの部屋からの脱出」": {
+      "title": "リアル脱出ゲーム『アイテムだらけの部屋からの脱出』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 8,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「マグノリア銀行からの脱出」（リバイバル）": {
+      "title": "リアル脱出ゲーム『マグノリア銀行からの脱出』（リバイバル）",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「謎のタワーマンションからの脱出」": {
+      "title": "リアル脱出ゲーム『謎のタワーマンションからの脱出』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 10,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「謎の部屋からの脱出」（リバイバル）": {
+      "title": "リアル脱出ゲーム『謎の部屋からの脱出』（リバイバル）",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 10,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「EscapefromTheREDROOM」": {
+      "title": "リアル脱出ゲーム『Escape from The RED ROOM』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「謎の壁からの脱出」": {
+      "title": "リアル脱出ゲーム『謎の壁からの脱出』",
+      "type": null,
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「ある沈没船からの脱出」": {
+      "title": "リアル脱出ゲーム『ある沈没船からの脱出』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": 2,
+      "is_anytime": true
+    },
+    "現場捜査ゲーム「演じすぎた男」": {
+      "title": "現場捜査ゲーム『演じすぎた男』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": 3,
+      "is_anytime": true
+    },
+    "TOWERGAMESeries「MYSTERYTOWERミステリータワーからの脱出」": {
+      "title": "TOWER GAME Series『MYSTERY TOWER ミステリータワーからの脱出』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": 3,
+      "is_anytime": true
+    },
+    "TOWERGAMESeries「BEATTOWERビートタワーからの脱出」": {
+      "title": "TOWER GAME Series『BEAT TOWER ビートタワーからの脱出』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": 3,
+      "is_anytime": true
+    },
+    "ナゾトキ街歩きゲーム「なごや大須謎解き食べ歩き〜でらうまい謎はいかが？〜」": {
+      "title": "ナゾトキ街歩きゲーム『なごや大須謎解き食べ歩き〜でらうまい謎はいかが？〜』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "SCRAP×SNOOPY謎解きPROJECT「スヌーピーと謎解きサーカス団」": {
+      "title": "SCRAP×SNOOPY 謎解きPROJECT『スヌーピーと謎解きサーカス団』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "SCRAP×SNOOPY謎解きPROJECT「スヌーピーと秘密のレシピ」": {
+      "title": "SCRAP×SNOOPY 謎解きPROJECT『スヌーピーと秘密のレシピ』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "SCRAP×SNOOPY謎解きPROJECT「スヌーピーと不思議な絵」": {
+      "title": "SCRAP×SNOOPY 謎解きPROJECT『スヌーピーと不思議な絵』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "リアル脱出ゲーム×転生したらスライムだった件「謀略のテンペストサーカスからの脱出」": {
+      "title": "リアル脱出ゲーム×転生したらスライムだった件『謀略のテンペストサーカスからの脱出』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "リアル脱出ゲーム×逃走中グレートミッション「ハンターだらけのクロノスランドからの脱出」": {
+      "title": "リアル脱出ゲーム ×逃走中グレートミッション 『ハンターだらけのクロノスランドからの脱出』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "MYSTERYMAILBOX×レイトンミステリー探偵社「カトリーエイルと死者からの手紙」": {
+      "title": "MYSTERY MAIL BOX×レイトン ミステリー探偵社『カトリーエイルと死者からの手紙』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "MYSTERYMAILBOX「ナゾコンからの挑戦状」": {
+      "title": "MYSTERY MAIL BOX 『ナゾコンからの挑戦状』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
+    "MysteryMailBox「MysteryManからの招待状」": {
+      "title": "Mystery Mail Box『Mystery Manからの招待状』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    }
+  }
+}

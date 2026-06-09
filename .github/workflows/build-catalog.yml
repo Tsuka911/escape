@@ -1,0 +1,45 @@
+name: build-catalog
+
+# 演目メタ情報（種別・最大人数・随時判定）を週1回 docs/data/catalog.json へ焼き出す。
+# 空き状況そのものは静的サイトがブラウザから直接ライブ取得するので、ここでは触らない。
+
+on:
+  schedule:
+    # 毎週月曜 22:00 UTC = 火曜 07:00 JST（メタは滅多に変わらないので週1で十分）
+    - cron: "0 22 * * 1"
+  workflow_dispatch:        # 手動実行（新しい演目が出たときに自分で更新できる）
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/data/**"      # 自分が出力したJSONのコミットで再実行されないようにする（無限ループ防止）
+
+permissions:
+  contents: write           # 生成したJSONをコミット&プッシュするため
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Build catalog.json
+        run: python build_catalog.py
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain docs/data/catalog.json)" ]; then
+            git add docs/data/catalog.json
+            git commit -m "演目カタログを自動更新 [skip ci]"
+            git push
+          else
+            echo "変更なし。コミットしません。"
+          fi
