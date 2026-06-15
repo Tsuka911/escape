@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-09T21:50:02+09:00",
+  "updated_at": "2026-06-16T08:46:11+09:00",
   "events": [
     {
       "event_name": "『アルティメットビンゴ 〜終わらないビンゴパーティー〜』",
@@ -232,13 +232,6 @@
       "type": "ルーム型",
       "start_type": "一斉スタート",
       "max_team_size": 10,
-      "is_anytime": false
-    },
-    "https://realdgame.jp/s/interview/": {
-      "title": "リアル脱出ゲーム『絶対にバレてはいけない嘘だらけのインタビュールームからの脱出』",
-      "type": "ルーム型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
       "is_anytime": false
     },
     "https://realdgame.jp/s/item/": {
@@ -479,13 +472,6 @@
       "type": "ルーム型",
       "start_type": "一斉スタート",
       "max_team_size": 10,
-      "is_anytime": false
-    },
-    "リアル脱出ゲーム「絶対にバレてはいけない嘘だらけのインタビュールームからの脱出」": {
-      "title": "リアル脱出ゲーム『絶対にバレてはいけない嘘だらけのインタビュールームからの脱出』",
-      "type": "ルーム型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
       "is_anytime": false
     },
     "リアル脱出ゲーム「アイテムだらけの部屋からの脱出」": {
