@@ -1,15 +1,6 @@
 {
-  "updated_at": "2026-06-16T08:46:11+09:00",
+  "updated_at": "2026-06-23T08:20:41+09:00",
   "events": [
-    {
-      "event_name": "『アルティメットビンゴ 〜終わらないビンゴパーティー〜』",
-      "raw_name": "【名古屋店】『アルティメットビンゴ 〜終わらないビンゴパーティー〜』",
-      "event_url": "https://www.scrapmagazine.com/s/ultimate-bingo/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=02bingop",
-      "type": "ホール型",
-      "max_team_size": 6,
-      "order_unit": "人"
-    },
     {
       "event_name": "『コロコロジック』",
       "raw_name": "【名古屋店】『コロコロジック』",
@@ -18,6 +9,15 @@
       "type": null,
       "max_team_size": 3,
       "order_unit": "組"
+    },
+    {
+      "event_name": "『リアル脱出ゲーム名古屋店感謝祭2026』",
+      "raw_name": "【名古屋店】『リアル脱出ゲーム名古屋店感謝祭2026』",
+      "event_url": "https://realdgame.jp/shop/nagoya/events/kansyasai2026/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=05ngy11a",
+      "type": null,
+      "max_team_size": null,
+      "order_unit": "人"
     },
     {
       "event_name": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
