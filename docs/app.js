@@ -320,6 +320,12 @@ function bookBtn(url) {
   return `<a class="book-btn" href="${esc(url)}" target="_blank" rel="noopener">予約ページ${BOOK_ARROW}</a>`;
 }
 
+// 公演の特集ページ（公式サイトの演目紹介ページ）へのリンク
+function detailBtn(url) {
+  if (!url) return '';
+  return `<a class="detail-btn" href="${esc(url)}" target="_blank" rel="noopener">公演の詳細${BOOK_ARROW}</a>`;
+}
+
 function formatEventLabel(e) {
   const extra = [];
   if (e.type) extra.push(e.type);
@@ -562,6 +568,8 @@ function renderEventView() {
 
   if (S.selEvent) {
     html += `<button class="btn" id="evClear" style="margin-top:.5rem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>選択中の演目をクリア</button>`;
+    const selCat = S.catalog.events.find((e) => e.event_name === S.selEvent);
+    if (selCat && selCat.event_url) html += `<div style="margin-top:.5rem">${detailBtn(selCat.event_url)}</div>`;
     html += dateRangeHTML('event');
     html += `<button class="btn btn-primary full" id="evSearch" style="margin-top:.6rem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.49 4.49 0 0 1 9.5 14z"/></svg>この条件で空きを検索</button>`;
     html += excludedBannerHTML();
@@ -731,7 +739,7 @@ function buildDayEvents(dayRows) {
     const metaParts = [];
     if (r.type) metaParts.push(r.type);
     if (r.max_team_size) metaParts.push(`最大${r.max_team_size}人`);
-    rendered.push({ event_name: r.event_name, meta: metaParts.join(' ・ '), slots: slotsInfo, url: r.tickets_url || '', rank: bestRank });
+    rendered.push({ event_name: r.event_name, meta: metaParts.join(' ・ '), slots: slotsInfo, url: r.tickets_url || '', event_url: r.event_url || '', rank: bestRank });
   }
   return rendered;
 }
@@ -746,9 +754,12 @@ function dayEventCardsHTML(d, dayRows) {
   const cards = rendered.map((it) => {
     const chips = it.slots.map((si) => `<span class="chip ${STATUS_CLASS[si.status]}">${esc(si.label)}</span>`).join('');
     const metaHTML = it.meta ? `<div class="event-meta">${esc(it.meta)}</div>` : '';
+    const links = it.event_url
+      ? `<div class="card-links">${bookBtn(it.url)}${detailBtn(it.event_url)}</div>`
+      : bookBtn(it.url);
     return '<div class="event-card">' +
       `<div class="event-name">${esc(it.event_name)}</div>${metaHTML}` +
-      `<div class="slot-chips">${chips}</div>${bookBtn(it.url)}</div>`;
+      `<div class="slot-chips">${chips}</div>${links}</div>`;
   }).join('');
   html += `<div class="card-grid grid-events">${cards}</div>`;
   return html;
@@ -775,6 +786,8 @@ function renderCalendarView() {
   }
 
   html += `<button class="btn" id="calClear" style="margin-top:.5rem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>選択中の演目をクリア</button>`;
+  const calCat = S.catalog.events.find((e) => e.event_name === S.selEvent);
+  if (calCat && calCat.event_url) html += `<div style="margin-top:.5rem">${detailBtn(calCat.event_url)}</div>`;
   html += '<div class="cal-nav">' +
     '<button class="btn" id="calPrev">前の月</button>' +
     `<div class="label">${S.cal.year}年${S.cal.month}月</div>` +

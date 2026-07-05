@@ -543,6 +543,30 @@ html, body {
 .book-btn:hover { background: var(--accent-strong); box-shadow: 0 2px 8px rgba(47, 111, 237, 0.3); }
 .book-btn svg { margin-left: 5px; }
 
+/* 公演の詳細（特集ページ）リンク：予約ボタンの白抜き版 */
+.detail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.48rem 0.8rem;
+  border-radius: 9px;
+  border: 1px solid var(--accent);
+  background: #fff;
+  color: var(--accent) !important;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: background .12s ease;
+}
+.detail-btn:hover { background: var(--chip); }
+.detail-btn svg { margin-left: 5px; }
+
+/* 演目カード内で「予約ページ」「公演の詳細」を横並びにする */
+.card-links { display: flex; gap: 0.5rem; margin-top: auto; }
+.card-links .book-btn { flex: 1.2; margin-top: 0; }
+.card-links .detail-btn { flex: 1; }
+
 /* ── カレンダー ── */
 .cal-nav { display: flex; align-items: center; gap: 0.5rem; margin: 0.6rem 0; }
 .cal-nav .label { flex: 1; text-align: center; font-weight: 800; font-size: 1.1rem; }
