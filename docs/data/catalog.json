@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-06-30T07:58:40+09:00",
+  "updated_at": "2026-07-05T21:28:30+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -9,15 +9,6 @@
       "type": null,
       "max_team_size": 3,
       "order_unit": "組"
-    },
-    {
-      "event_name": "『リアル脱出ゲーム名古屋店感謝祭2026』",
-      "raw_name": "【名古屋店】『リアル脱出ゲーム名古屋店感謝祭2026』",
-      "event_url": "https://realdgame.jp/shop/nagoya/events/kansyasai2026/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=05ngy11a",
-      "type": null,
-      "max_team_size": null,
-      "order_unit": "人"
     },
     {
       "event_name": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
@@ -49,7 +40,7 @@
     {
       "event_name": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
       "raw_name": "【名古屋店】リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
-      "event_url": "https://realdgame.jp/shop/nagoya/events/jikken26/",
+      "event_url": "https://realdgame.jp/event/jikkenshitsu",
       "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10jikken26",
       "type": "ホール型",
       "max_team_size": 4,
