@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-05T21:28:30+09:00",
+  "updated_at": "2026-07-07T08:08:37+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -62,15 +62,6 @@
       "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10itemd",
       "type": "ルーム型",
       "max_team_size": 8,
-      "order_unit": "人"
-    },
-    {
-      "event_name": "リアル脱出ゲーム『ゾンビに囲まれたホームセンターからの脱出』",
-      "raw_name": "【名古屋店】リアル脱出ゲーム『ゾンビに囲まれたホームセンターからの脱出』",
-      "event_url": "https://realdgame.jp/s/zombie-homecenter/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=03zmbhmc",
-      "type": "ホール型",
-      "max_team_size": 4,
       "order_unit": "人"
     },
     {
