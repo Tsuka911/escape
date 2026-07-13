@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-07T08:08:37+09:00",
+  "updated_at": "2026-07-14T07:56:01+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -111,19 +111,19 @@
     }
   ],
   "meta_by_url": {
-    "https://realdgame.jp/shop/nagoya/events/kansyasai2026/": {
-      "title": "リアル脱出ゲーム名古屋店感謝祭2026",
-      "type": null,
+    "https://realdgame.jp/s/conan2026/": {
+      "title": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
+      "type": "ホール型",
       "start_type": "一斉スタート",
-      "max_team_size": null,
+      "max_team_size": 6,
       "is_anytime": false
     },
-    "https://realdgame.jp/s/cthulhu/": {
-      "title": "リアル脱出ゲーム×クトゥルフ神話『狂気の山脈からの脱出』",
+    "https://realdgame.jp/s/bokumaji/": {
+      "title": "さよなら、僕らのマジックアワー（リバイバル）",
       "type": "ホール型",
-      "start_type": "随時スタート",
+      "start_type": "一斉スタート",
       "max_team_size": 4,
-      "is_anytime": true
+      "is_anytime": false
     },
     "https://realdgame.jp/s/zombie-homecenter/": {
       "title": "リアル脱出ゲーム『ゾンビに囲まれたホームセンターからの脱出』",
@@ -132,32 +132,11 @@
       "max_team_size": 4,
       "is_anytime": false
     },
-    "https://www.scrapmagazine.com/s/ultimate-bingo/": {
-      "title": "『アルティメットビンゴ 〜終わらないビンゴパーティー〜』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 6,
-      "is_anytime": false
-    },
-    "https://realdgame.jp/s/conan2026/": {
-      "title": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 6,
-      "is_anytime": false
-    },
     "https://realdgame.jp/s/gkmas/": {
       "title": "リアル脱出ゲーム×学園アイドルマスター『人狼潜む文化祭からの脱出』",
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": null,
-      "is_anytime": false
-    },
-    "https://realdgame.jp/s/bokumaji/": {
-      "title": "さよなら、僕らのマジックアワー（リバイバル）",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
       "is_anytime": false
     },
     "https://realdgame.jp/shop/nagoya/events/jikken26/": {
@@ -179,13 +158,6 @@
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 4,
-      "is_anytime": false
-    },
-    "https://realdgame.jp/shop/nagoya/events/krklgc/": {
-      "title": "『コロコロジック』",
-      "type": null,
-      "start_type": "一斉スタート",
-      "max_team_size": 3,
       "is_anytime": false
     },
     "https://realdgame.jp/shop/nagoya/events/asasin26/": {
@@ -264,6 +236,13 @@
       "start_type": "随時スタート",
       "max_team_size": 2,
       "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/krklgc/": {
+      "title": "『コロコロジック』",
+      "type": null,
+      "start_type": "一斉スタート",
+      "max_team_size": 3,
+      "is_anytime": false
     },
     "https://realdgame.jp/shop/nagoya/events/genba_sousa/": {
       "title": "現場捜査ゲーム『演じすぎた男』",
@@ -351,19 +330,19 @@
     }
   },
   "meta_by_title": {
-    "リアル脱出ゲーム名古屋店感謝祭2026": {
-      "title": "リアル脱出ゲーム名古屋店感謝祭2026",
-      "type": null,
+    "リアル脱出ゲーム×名探偵コナン「疾風の追走からの脱出」": {
+      "title": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
+      "type": "ホール型",
       "start_type": "一斉スタート",
-      "max_team_size": null,
+      "max_team_size": 6,
       "is_anytime": false
     },
-    "リアル脱出ゲーム×クトゥルフ神話「狂気の山脈からの脱出」": {
-      "title": "リアル脱出ゲーム×クトゥルフ神話『狂気の山脈からの脱出』",
+    "さよなら、僕らのマジックアワー（リバイバル）": {
+      "title": "さよなら、僕らのマジックアワー（リバイバル）",
       "type": "ホール型",
-      "start_type": "随時スタート",
+      "start_type": "一斉スタート",
       "max_team_size": 4,
-      "is_anytime": true
+      "is_anytime": false
     },
     "リアル脱出ゲーム「ゾンビに囲まれたホームセンターからの脱出」": {
       "title": "リアル脱出ゲーム『ゾンビに囲まれたホームセンターからの脱出』",
@@ -372,32 +351,11 @@
       "max_team_size": 4,
       "is_anytime": false
     },
-    "「アルティメットビンゴ〜終わらないビンゴパーティー〜」": {
-      "title": "『アルティメットビンゴ 〜終わらないビンゴパーティー〜』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 6,
-      "is_anytime": false
-    },
-    "リアル脱出ゲーム×名探偵コナン「疾風の追走からの脱出」": {
-      "title": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 6,
-      "is_anytime": false
-    },
     "リアル脱出ゲーム×学園アイドルマスター「人狼潜む文化祭からの脱出」": {
       "title": "リアル脱出ゲーム×学園アイドルマスター『人狼潜む文化祭からの脱出』",
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": null,
-      "is_anytime": false
-    },
-    "さよなら、僕らのマジックアワー（リバイバル）": {
-      "title": "さよなら、僕らのマジックアワー（リバイバル）",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
       "is_anytime": false
     },
     "リアル脱出ゲーム「ある実験室からの脱出」（リバイバル）": {
@@ -419,13 +377,6 @@
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 4,
-      "is_anytime": false
-    },
-    "「コロコロジック」": {
-      "title": "『コロコロジック』",
-      "type": null,
-      "start_type": "一斉スタート",
-      "max_team_size": 3,
       "is_anytime": false
     },
     "リアル脱出ゲーム×名探偵コナンFILE.4「黒き暗殺者からの脱出」（リバイバル）": {
@@ -504,6 +455,13 @@
       "start_type": "随時スタート",
       "max_team_size": 2,
       "is_anytime": true
+    },
+    "「コロコロジック」": {
+      "title": "『コロコロジック』",
+      "type": null,
+      "start_type": "一斉スタート",
+      "max_team_size": 3,
+      "is_anytime": false
     },
     "現場捜査ゲーム「演じすぎた男」": {
       "title": "現場捜査ゲーム『演じすぎた男』",
