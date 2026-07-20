@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-14T07:56:01+09:00",
+  "updated_at": "2026-07-21T08:00:54+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -120,13 +120,6 @@
     },
     "https://realdgame.jp/s/bokumaji/": {
       "title": "さよなら、僕らのマジックアワー（リバイバル）",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
-      "is_anytime": false
-    },
-    "https://realdgame.jp/s/zombie-homecenter/": {
-      "title": "リアル脱出ゲーム『ゾンビに囲まれたホームセンターからの脱出』",
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 4,
@@ -339,13 +332,6 @@
     },
     "さよなら、僕らのマジックアワー（リバイバル）": {
       "title": "さよなら、僕らのマジックアワー（リバイバル）",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
-      "is_anytime": false
-    },
-    "リアル脱出ゲーム「ゾンビに囲まれたホームセンターからの脱出」": {
-      "title": "リアル脱出ゲーム『ゾンビに囲まれたホームセンターからの脱出』",
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 4,
