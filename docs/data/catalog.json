@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-21T08:00:54+09:00",
+  "updated_at": "2026-07-28T08:02:02+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -26,6 +26,15 @@
       "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=03gkms26",
       "type": "ホール型",
       "max_team_size": null,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム×転生したらスライムだった件『閉ざされたテンペストダンジョン（異世界迷宮）からの脱出』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム×転生したらスライムだった件『閉ざされたテンペストダンジョン（異世界迷宮）からの脱出』",
+      "event_url": "https://realdgame.jp/s/tensura2026/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=02tnsr26",
+      "type": "ホール型",
+      "max_team_size": 6,
       "order_unit": "人"
     },
     {
@@ -80,6 +89,15 @@
       "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10bank25",
       "type": "ルーム型",
       "max_team_size": 6,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『最後の放課後からの脱出』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『最後の放課後からの脱出』",
+      "event_url": "https://realdgame.jp/s/houkago/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=03houkago",
+      "type": "ホール型",
+      "max_team_size": 4,
       "order_unit": "人"
     },
     {
