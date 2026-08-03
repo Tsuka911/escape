@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-07-28T08:02:02+09:00",
+  "updated_at": "2026-08-04T08:00:47+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -129,6 +129,13 @@
     }
   ],
   "meta_by_url": {
+    "https://realdgame.jp/s/ninjayashiki/": {
+      "title": "リアル脱出ゲーム『からくりの罠潜む忍者屋敷からの脱出』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 8,
+      "is_anytime": false
+    },
     "https://realdgame.jp/s/conan2026/": {
       "title": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
       "type": "ホール型",
@@ -341,6 +348,13 @@
     }
   },
   "meta_by_title": {
+    "リアル脱出ゲーム「からくりの罠潜む忍者屋敷からの脱出」": {
+      "title": "リアル脱出ゲーム『からくりの罠潜む忍者屋敷からの脱出』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 8,
+      "is_anytime": false
+    },
     "リアル脱出ゲーム×名探偵コナン「疾風の追走からの脱出」": {
       "title": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
       "type": "ホール型",
