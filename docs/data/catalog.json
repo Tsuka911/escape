@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-18T07:24:24+09:00",
+  "updated_at": "2026-08-25T07:26:18+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -129,6 +129,13 @@
     }
   ],
   "meta_by_url": {
+    "https://realdgame.jp/s/frieren2/": {
+      "title": "リアル脱出ゲーム×葬送のフリーレン『魔族潜む村からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
     "https://realdgame.jp/s/ninjayashiki/": {
       "title": "リアル脱出ゲーム『からくりの罠潜む忍者屋敷からの脱出』",
       "type": "ルーム型",
@@ -348,6 +355,13 @@
     }
   },
   "meta_by_title": {
+    "リアル脱出ゲーム×葬送のフリーレン「魔族潜む村からの脱出」": {
+      "title": "リアル脱出ゲーム×葬送のフリーレン『魔族潜む村からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
     "リアル脱出ゲーム「からくりの罠潜む忍者屋敷からの脱出」": {
       "title": "リアル脱出ゲーム『からくりの罠潜む忍者屋敷からの脱出』",
       "type": "ルーム型",
