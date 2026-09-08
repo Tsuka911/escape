@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-01T10:00:36+09:00",
+  "updated_at": "2026-09-08T09:00:52+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -26,15 +26,6 @@
       "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=01conan26",
       "type": "ホール型",
       "max_team_size": 6,
-      "order_unit": "人"
-    },
-    {
-      "event_name": "リアル脱出ゲーム×学園アイドルマスター『人狼潜む文化祭からの脱出』",
-      "raw_name": "【名古屋店】リアル脱出ゲーム×学園アイドルマスター『人狼潜む文化祭からの脱出』",
-      "event_url": "https://realdgame.jp/s/gkmas/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=03gkms26",
-      "type": "ホール型",
-      "max_team_size": null,
       "order_unit": "人"
     },
     {
@@ -71,15 +62,6 @@
       "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10ninja",
       "type": "ルーム型",
       "max_team_size": 8,
-      "order_unit": "人"
-    },
-    {
-      "event_name": "リアル脱出ゲーム『さよなら、僕らのマジックアワー』（リバイバル）",
-      "raw_name": "【名古屋店】リアル脱出ゲーム『さよなら、僕らのマジックアワー』（リバイバル）",
-      "event_url": "https://realdgame.jp/s/bokumaji/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=01maghou",
-      "type": "ホール型",
-      "max_team_size": 4,
       "order_unit": "人"
     },
     {
@@ -147,6 +129,13 @@
     }
   ],
   "meta_by_url": {
+    "https://realdgame.jp/s/space-museum/": {
+      "title": "リアル脱出ゲーム『真夜中の宇宙博物館からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
     "https://realdgame.jp/s/frieren2/": {
       "title": "リアル脱出ゲーム×葬送のフリーレン『魔族潜む村からの脱出』",
       "type": "ホール型",
@@ -373,6 +362,13 @@
     }
   },
   "meta_by_title": {
+    "リアル脱出ゲーム「真夜中の宇宙博物館からの脱出」": {
+      "title": "リアル脱出ゲーム『真夜中の宇宙博物館からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
     "リアル脱出ゲーム×葬送のフリーレン「魔族潜む村からの脱出」": {
       "title": "リアル脱出ゲーム×葬送のフリーレン『魔族潜む村からの脱出』",
       "type": "ホール型",
