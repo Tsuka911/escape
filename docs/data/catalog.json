@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-08T09:00:52+09:00",
+  "updated_at": "2026-09-15T09:21:19+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -26,6 +26,15 @@
       "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=01conan26",
       "type": "ホール型",
       "max_team_size": 6,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム×葬送のフリーレン『魔族潜む村からの脱出』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム×葬送のフリーレン『魔族潜む村からの脱出』",
+      "event_url": "https://realdgame.jp/s/frieren2/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=01frieren2",
+      "type": "ホール型",
+      "max_team_size": 4,
       "order_unit": "人"
     },
     {
@@ -129,6 +138,13 @@
     }
   ],
   "meta_by_url": {
+    "https://realdgame.jp/s/nigewaka/": {
+      "title": "リアル脱出ゲーム×『逃げ上手の若君』『鬼々迫る戦場からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
     "https://realdgame.jp/s/space-museum/": {
       "title": "リアル脱出ゲーム『真夜中の宇宙博物館からの脱出』",
       "type": "ホール型",
@@ -157,27 +173,6 @@
       "max_team_size": 6,
       "is_anytime": false
     },
-    "https://realdgame.jp/s/bokumaji/": {
-      "title": "さよなら、僕らのマジックアワー（リバイバル）",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
-      "is_anytime": false
-    },
-    "https://realdgame.jp/s/gkmas/": {
-      "title": "リアル脱出ゲーム×学園アイドルマスター『人狼潜む文化祭からの脱出』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": null,
-      "is_anytime": false
-    },
-    "https://realdgame.jp/shop/nagoya/events/jikken26/": {
-      "title": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
-      "is_anytime": false
-    },
     "https://realdgame.jp/s/tensura2026/": {
       "title": "リアル脱出ゲーム×転生したらスライムだった件『閉ざされたテンペストダンジョン（異世界迷宮）からの脱出』",
       "type": "ホール型",
@@ -187,6 +182,13 @@
     },
     "https://realdgame.jp/s/houkago/": {
       "title": "リアル脱出ゲーム『最後の放課後からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/jikken26/": {
+      "title": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 4,
@@ -362,6 +364,13 @@
     }
   },
   "meta_by_title": {
+    "リアル脱出ゲーム×「逃げ上手の若君」「鬼々迫る戦場からの脱出」": {
+      "title": "リアル脱出ゲーム×『逃げ上手の若君』『鬼々迫る戦場からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
     "リアル脱出ゲーム「真夜中の宇宙博物館からの脱出」": {
       "title": "リアル脱出ゲーム『真夜中の宇宙博物館からの脱出』",
       "type": "ホール型",
@@ -390,27 +399,6 @@
       "max_team_size": 6,
       "is_anytime": false
     },
-    "さよなら、僕らのマジックアワー（リバイバル）": {
-      "title": "さよなら、僕らのマジックアワー（リバイバル）",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
-      "is_anytime": false
-    },
-    "リアル脱出ゲーム×学園アイドルマスター「人狼潜む文化祭からの脱出」": {
-      "title": "リアル脱出ゲーム×学園アイドルマスター『人狼潜む文化祭からの脱出』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": null,
-      "is_anytime": false
-    },
-    "リアル脱出ゲーム「ある実験室からの脱出」（リバイバル）": {
-      "title": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
-      "is_anytime": false
-    },
     "リアル脱出ゲーム×転生したらスライムだった件「閉ざされたテンペストダンジョン（異世界迷宮）からの脱出」": {
       "title": "リアル脱出ゲーム×転生したらスライムだった件『閉ざされたテンペストダンジョン（異世界迷宮）からの脱出』",
       "type": "ホール型",
@@ -420,6 +408,13 @@
     },
     "リアル脱出ゲーム「最後の放課後からの脱出」": {
       "title": "リアル脱出ゲーム『最後の放課後からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「ある実験室からの脱出」（リバイバル）": {
+      "title": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 4,
