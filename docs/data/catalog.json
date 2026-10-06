@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-29T10:30:36+09:00",
+  "updated_at": "2026-10-06T11:05:01+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -77,7 +77,7 @@
       "event_name": "リアル脱出ゲーム『アイテムだらけの部屋からの脱出』",
       "raw_name": "【名古屋店】リアル脱出ゲーム『アイテムだらけの部屋からの脱出』",
       "event_url": "https://realdgame.jp/s/item/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10itemd",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10itemd26",
       "type": "ルーム型",
       "max_team_size": 8,
       "order_unit": "人"
@@ -227,13 +227,6 @@
       "max_team_size": 6,
       "is_anytime": false
     },
-    "https://realdgame.jp/shop/nagoya/events/tower_mansion/": {
-      "title": "リアル脱出ゲーム『謎のタワーマンションからの脱出』",
-      "type": "ルーム型",
-      "start_type": "一斉スタート",
-      "max_team_size": 10,
-      "is_anytime": false
-    },
     "https://realdgame.jp/shop/nagoya/events/nazobeya24/": {
       "title": "リアル脱出ゲーム『謎の部屋からの脱出』（リバイバル）",
       "type": "ルーム型",
@@ -320,13 +313,6 @@
     },
     "https://realdgame.jp/s/tensura/": {
       "title": "リアル脱出ゲーム×転生したらスライムだった件『謀略のテンペストサーカスからの脱出』",
-      "type": null,
-      "start_type": "随時スタート",
-      "max_team_size": null,
-      "is_anytime": true
-    },
-    "https://realdgame.jp/tosochu_gm/": {
-      "title": "リアル脱出ゲーム ×逃走中グレートミッション 『ハンターだらけのクロノスランドからの脱出』",
       "type": null,
       "start_type": "随時スタート",
       "max_team_size": null,
@@ -453,13 +439,6 @@
       "max_team_size": 6,
       "is_anytime": false
     },
-    "リアル脱出ゲーム「謎のタワーマンションからの脱出」": {
-      "title": "リアル脱出ゲーム『謎のタワーマンションからの脱出』",
-      "type": "ルーム型",
-      "start_type": "一斉スタート",
-      "max_team_size": 10,
-      "is_anytime": false
-    },
     "リアル脱出ゲーム「謎の部屋からの脱出」（リバイバル）": {
       "title": "リアル脱出ゲーム『謎の部屋からの脱出』（リバイバル）",
       "type": "ルーム型",
@@ -546,13 +525,6 @@
     },
     "リアル脱出ゲーム×転生したらスライムだった件「謀略のテンペストサーカスからの脱出」": {
       "title": "リアル脱出ゲーム×転生したらスライムだった件『謀略のテンペストサーカスからの脱出』",
-      "type": null,
-      "start_type": "随時スタート",
-      "max_team_size": null,
-      "is_anytime": true
-    },
-    "リアル脱出ゲーム×逃走中グレートミッション「ハンターだらけのクロノスランドからの脱出」": {
-      "title": "リアル脱出ゲーム ×逃走中グレートミッション 『ハンターだらけのクロノスランドからの脱出』",
       "type": null,
       "start_type": "随時スタート",
       "max_team_size": null,
