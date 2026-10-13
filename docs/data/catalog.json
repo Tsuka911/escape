@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-06T11:05:01+09:00",
+  "updated_at": "2026-10-13T11:51:28+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -9,6 +9,15 @@
       "type": null,
       "max_team_size": 3,
       "order_unit": "組"
+    },
+    {
+      "event_name": "リアル脱出ゲーム×『逃げ上手の若君』『鬼々迫る戦場からの脱出』",
+      "raw_name": "【名古屋店】リアル脱出ゲーム×『逃げ上手の若君』『鬼々迫る戦場からの脱出』",
+      "event_url": "https://realdgame.jp/s/nigewaka/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=02nigewaka",
+      "type": "ホール型",
+      "max_team_size": 4,
+      "order_unit": "人"
     },
     {
       "event_name": "リアル脱出ゲーム×名探偵コナン FILE.4『黒き暗殺者からの脱出』（リバイバル）",
@@ -35,15 +44,6 @@
       "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=01frieren2",
       "type": "ホール型",
       "max_team_size": 4,
-      "order_unit": "人"
-    },
-    {
-      "event_name": "リアル脱出ゲーム×転生したらスライムだった件『閉ざされたテンペストダンジョン（異世界迷宮）からの脱出』",
-      "raw_name": "【名古屋店】リアル脱出ゲーム×転生したらスライムだった件『閉ざされたテンペストダンジョン（異世界迷宮）からの脱出』",
-      "event_url": "https://realdgame.jp/s/tensura2026/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=02tnsr26",
-      "type": "ホール型",
-      "max_team_size": 6,
       "order_unit": "人"
     },
     {
