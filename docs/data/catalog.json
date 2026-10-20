@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-13T11:51:28+09:00",
+  "updated_at": "2026-10-20T09:55:17+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -164,22 +164,8 @@
       "max_team_size": 6,
       "is_anytime": false
     },
-    "https://realdgame.jp/s/tensura2026/": {
-      "title": "リアル脱出ゲーム×転生したらスライムだった件『閉ざされたテンペストダンジョン（異世界迷宮）からの脱出』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 6,
-      "is_anytime": false
-    },
     "https://realdgame.jp/s/houkago/": {
       "title": "リアル脱出ゲーム『最後の放課後からの脱出』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
-      "is_anytime": false
-    },
-    "https://realdgame.jp/shop/nagoya/events/jikken26/": {
-      "title": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 4,
@@ -190,6 +176,13 @@
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 6,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/jikken26/": {
+      "title": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
       "is_anytime": false
     },
     "https://realdgame.jp/s/spymmb/": {
@@ -376,22 +369,8 @@
       "max_team_size": 6,
       "is_anytime": false
     },
-    "リアル脱出ゲーム×転生したらスライムだった件「閉ざされたテンペストダンジョン（異世界迷宮）からの脱出」": {
-      "title": "リアル脱出ゲーム×転生したらスライムだった件『閉ざされたテンペストダンジョン（異世界迷宮）からの脱出』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 6,
-      "is_anytime": false
-    },
     "リアル脱出ゲーム「最後の放課後からの脱出」": {
       "title": "リアル脱出ゲーム『最後の放課後からの脱出』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
-      "is_anytime": false
-    },
-    "リアル脱出ゲーム「ある実験室からの脱出」（リバイバル）": {
-      "title": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 4,
@@ -402,6 +381,13 @@
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 6,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「ある実験室からの脱出」（リバイバル）": {
+      "title": "リアル脱出ゲーム『ある実験室からの脱出』（リバイバル）",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 4,
       "is_anytime": false
     },
     "MYSTERYMAILBOX「スパイミッションからの脱出-パンドラの箱と裏切りの銃弾-」": {
