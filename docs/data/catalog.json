@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-20T09:55:17+09:00",
+  "updated_at": "2026-10-27T10:12:42+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -32,7 +32,7 @@
       "event_name": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
       "raw_name": "【名古屋店】リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
       "event_url": "https://realdgame.jp/s/conan2026/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=01conan26",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=01conan262",
       "type": "ホール型",
       "max_team_size": 6,
       "order_unit": "人"
@@ -101,15 +101,6 @@
       "order_unit": "人"
     },
     {
-      "event_name": "リアル脱出ゲーム『最後の放課後からの脱出』",
-      "raw_name": "【名古屋店】リアル脱出ゲーム『最後の放課後からの脱出』",
-      "event_url": "https://realdgame.jp/s/houkago/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=03houkago",
-      "type": "ホール型",
-      "max_team_size": 4,
-      "order_unit": "人"
-    },
-    {
       "event_name": "リアル脱出ゲーム『謎の壁からの脱出』",
       "raw_name": "【名古屋店】リアル脱出ゲーム『謎の壁からの脱出』",
       "event_url": "https://realdgame.jp/shop/nagoya/events/nazokabe/",
@@ -129,6 +120,13 @@
     }
   ],
   "meta_by_url": {
+    "https://realdgame.jp/s/fgo2026": {
+      "title": "Fate/Grand Order×リアル脱出ゲーム 『謎特異点 FINAL 無間冤罪地獄からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
     "https://realdgame.jp/s/nigewaka/": {
       "title": "リアル脱出ゲーム×『逃げ上手の若君』『鬼々迫る戦場からの脱出』",
       "type": "ホール型",
@@ -334,6 +332,13 @@
     }
   },
   "meta_by_title": {
+    "Fate/GrandOrder×リアル脱出ゲーム「謎特異点FINAL無間冤罪地獄からの脱出」": {
+      "title": "Fate/Grand Order×リアル脱出ゲーム 『謎特異点 FINAL 無間冤罪地獄からの脱出』",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
     "リアル脱出ゲーム×「逃げ上手の若君」「鬼々迫る戦場からの脱出」": {
       "title": "リアル脱出ゲーム×『逃げ上手の若君』『鬼々迫る戦場からの脱出』",
       "type": "ホール型",
