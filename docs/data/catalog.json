@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-27T10:12:42+09:00",
+  "updated_at": "2026-11-03T12:19:11+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -120,6 +120,13 @@
     }
   ],
   "meta_by_url": {
+    "https://realdgame.jp/shop/nagoya/events/puzzle22025/": {
+      "title": "リアル脱出ゲーム『パズルルームからの脱出2』（リバイバル）",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 10,
+      "is_anytime": false
+    },
     "https://realdgame.jp/s/fgo2026": {
       "title": "Fate/Grand Order×リアル脱出ゲーム 『謎特異点 FINAL 無間冤罪地獄からの脱出』",
       "type": "ホール型",
@@ -148,25 +155,11 @@
       "max_team_size": 4,
       "is_anytime": false
     },
-    "https://realdgame.jp/s/ninjayashiki/": {
-      "title": "リアル脱出ゲーム『からくりの罠潜む忍者屋敷からの脱出』",
-      "type": "ルーム型",
-      "start_type": "一斉スタート",
-      "max_team_size": 8,
-      "is_anytime": false
-    },
     "https://realdgame.jp/s/conan2026/": {
       "title": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 6,
-      "is_anytime": false
-    },
-    "https://realdgame.jp/s/houkago/": {
-      "title": "リアル脱出ゲーム『最後の放課後からの脱出』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
       "is_anytime": false
     },
     "https://realdgame.jp/shop/nagoya/events/asasin26/": {
@@ -183,12 +176,12 @@
       "max_team_size": 4,
       "is_anytime": false
     },
-    "https://realdgame.jp/s/spymmb/": {
-      "title": "MYSTERY MAIL BOX『スパイミッションからの脱出-パンドラの箱と裏切りの銃弾-』",
-      "type": null,
-      "start_type": "随時スタート",
-      "max_team_size": null,
-      "is_anytime": true
+    "https://realdgame.jp/s/ninjayashiki/": {
+      "title": "リアル脱出ゲーム『からくりの罠潜む忍者屋敷からの脱出』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 8,
+      "is_anytime": false
     },
     "https://realdgame.jp/shop/nagoya/events/nazodarake/": {
       "title": "リアル脱出ゲーム『ナゾだらけの部屋からの脱出』（リバイバル）",
@@ -274,6 +267,13 @@
       "max_team_size": 3,
       "is_anytime": true
     },
+    "https://realdgame.jp/s/spymmb/": {
+      "title": "MYSTERY MAIL BOX『スパイミッションからの脱出-パンドラの箱と裏切りの銃弾-』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
+      "is_anytime": true
+    },
     "https://realdgame.jp/shop/nagoya/events/osu_nazo/": {
       "title": "ナゾトキ街歩きゲーム『なごや大須謎解き食べ歩き〜でらうまい謎はいかが？〜』",
       "type": null,
@@ -332,6 +332,13 @@
     }
   },
   "meta_by_title": {
+    "リアル脱出ゲーム「パズルルームからの脱出2」（リバイバル）": {
+      "title": "リアル脱出ゲーム『パズルルームからの脱出2』（リバイバル）",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 10,
+      "is_anytime": false
+    },
     "Fate/GrandOrder×リアル脱出ゲーム「謎特異点FINAL無間冤罪地獄からの脱出」": {
       "title": "Fate/Grand Order×リアル脱出ゲーム 『謎特異点 FINAL 無間冤罪地獄からの脱出』",
       "type": "ホール型",
@@ -360,25 +367,11 @@
       "max_team_size": 4,
       "is_anytime": false
     },
-    "リアル脱出ゲーム「からくりの罠潜む忍者屋敷からの脱出」": {
-      "title": "リアル脱出ゲーム『からくりの罠潜む忍者屋敷からの脱出』",
-      "type": "ルーム型",
-      "start_type": "一斉スタート",
-      "max_team_size": 8,
-      "is_anytime": false
-    },
     "リアル脱出ゲーム×名探偵コナン「疾風の追走からの脱出」": {
       "title": "リアル脱出ゲーム×名探偵コナン『疾風の追走からの脱出』",
       "type": "ホール型",
       "start_type": "一斉スタート",
       "max_team_size": 6,
-      "is_anytime": false
-    },
-    "リアル脱出ゲーム「最後の放課後からの脱出」": {
-      "title": "リアル脱出ゲーム『最後の放課後からの脱出』",
-      "type": "ホール型",
-      "start_type": "一斉スタート",
-      "max_team_size": 4,
       "is_anytime": false
     },
     "リアル脱出ゲーム×名探偵コナンFILE.4「黒き暗殺者からの脱出」（リバイバル）": {
@@ -395,12 +388,12 @@
       "max_team_size": 4,
       "is_anytime": false
     },
-    "MYSTERYMAILBOX「スパイミッションからの脱出-パンドラの箱と裏切りの銃弾-」": {
-      "title": "MYSTERY MAIL BOX『スパイミッションからの脱出-パンドラの箱と裏切りの銃弾-』",
-      "type": null,
-      "start_type": "随時スタート",
-      "max_team_size": null,
-      "is_anytime": true
+    "リアル脱出ゲーム「からくりの罠潜む忍者屋敷からの脱出」": {
+      "title": "リアル脱出ゲーム『からくりの罠潜む忍者屋敷からの脱出』",
+      "type": "ルーム型",
+      "start_type": "一斉スタート",
+      "max_team_size": 8,
+      "is_anytime": false
     },
     "リアル脱出ゲーム「ナゾだらけの部屋からの脱出」（リバイバル）": {
       "title": "リアル脱出ゲーム『ナゾだらけの部屋からの脱出』（リバイバル）",
@@ -484,6 +477,13 @@
       "type": null,
       "start_type": "随時スタート",
       "max_team_size": 3,
+      "is_anytime": true
+    },
+    "MYSTERYMAILBOX「スパイミッションからの脱出-パンドラの箱と裏切りの銃弾-」": {
+      "title": "MYSTERY MAIL BOX『スパイミッションからの脱出-パンドラの箱と裏切りの銃弾-』",
+      "type": null,
+      "start_type": "随時スタート",
+      "max_team_size": null,
       "is_anytime": true
     },
     "ナゾトキ街歩きゲーム「なごや大須謎解き食べ歩き〜でらうまい謎はいかが？〜」": {
