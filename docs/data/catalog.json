@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-03T12:19:11+09:00",
+  "updated_at": "2026-11-10T12:58:06+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -329,6 +329,13 @@
       "start_type": "随時スタート",
       "max_team_size": null,
       "is_anytime": true
+    },
+    "https://realdgame.jp/shop/nagoya/events/tokiqil-limited-nagoya/": {
+      "title": "TOKIQIL LIMITED NAGOYA",
+      "type": null,
+      "start_type": "",
+      "max_team_size": null,
+      "is_anytime": false
     }
   },
   "meta_by_title": {
@@ -541,6 +548,13 @@
       "start_type": "随時スタート",
       "max_team_size": null,
       "is_anytime": true
+    },
+    "TOKIQILLIMITEDNAGOYA": {
+      "title": "TOKIQIL LIMITED NAGOYA",
+      "type": null,
+      "start_type": "",
+      "max_team_size": null,
+      "is_anytime": false
     }
   }
 }
