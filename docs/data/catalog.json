@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-10T12:58:06+09:00",
+  "updated_at": "2026-11-17T13:20:02+09:00",
   "events": [
     {
       "event_name": "『コロコロジック』",
@@ -50,7 +50,7 @@
       "event_name": "リアル脱出ゲーム『Escape from The RED ROOM』",
       "raw_name": "【名古屋店】リアル脱出ゲーム『Escape from The RED ROOM』",
       "event_url": "https://realdgame.jp/shop/nagoya/events/red/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10red",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10red_26",
       "type": "ルーム型",
       "max_team_size": 6,
       "order_unit": "人"
@@ -83,10 +83,19 @@
       "order_unit": "人"
     },
     {
+      "event_name": "リアル脱出ゲーム『パズルルームからの脱出2』（リバイバル）",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『パズルルームからの脱出2』（リバイバル）",
+      "event_url": "https://realdgame.jp/shop/nagoya/events/puzzle22025/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10pzl226",
+      "type": "ルーム型",
+      "max_team_size": 10,
+      "order_unit": "人"
+    },
+    {
       "event_name": "リアル脱出ゲーム『パズルルームからの脱出』（リバイバル）",
       "raw_name": "【名古屋店】リアル脱出ゲーム『パズルルームからの脱出』（リバイバル）",
       "event_url": "https://realdgame.jp/shop/nagoya/events/puzzle12025/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10pzl126",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10pzl_26",
       "type": "ルーム型",
       "max_team_size": 10,
       "order_unit": "人"
@@ -95,8 +104,17 @@
       "event_name": "リアル脱出ゲーム『マグノリア銀行からの脱出』（リバイバル）",
       "raw_name": "【名古屋店】リアル脱出ゲーム『マグノリア銀行からの脱出』（リバイバル）",
       "event_url": "https://realdgame.jp/shop/nagoya/events/magnolia2025/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10bank25",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10bank_26",
       "type": "ルーム型",
+      "max_team_size": 6,
+      "order_unit": "人"
+    },
+    {
+      "event_name": "リアル脱出ゲーム『マッド博士の異常な遺言状』（リバイバル）",
+      "raw_name": "【名古屋店】リアル脱出ゲーム『マッド博士の異常な遺言状』（リバイバル）",
+      "event_url": "https://realdgame.jp/shop/nagoya/events/mad26/",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=03mad26",
+      "type": "ホール型",
       "max_team_size": 6,
       "order_unit": "人"
     },
@@ -104,7 +122,7 @@
       "event_name": "リアル脱出ゲーム『謎の壁からの脱出』",
       "raw_name": "【名古屋店】リアル脱出ゲーム『謎の壁からの脱出』",
       "event_url": "https://realdgame.jp/shop/nagoya/events/nazokabe/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=nazokabe2",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10nazokabe",
       "type": null,
       "max_team_size": 4,
       "order_unit": "人"
@@ -113,13 +131,27 @@
       "event_name": "リアル脱出ゲーム『謎の部屋からの脱出』（リバイバル）",
       "raw_name": "【名古屋店】リアル脱出ゲーム『謎の部屋からの脱出』（リバイバル）",
       "event_url": "https://realdgame.jp/shop/nagoya/events/nazobeya24/",
-      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10nazob24",
+      "tickets_url": "https://scrapticket.jp/events/?shop_id=93&content_code=10nazob_26",
       "type": "ルーム型",
       "max_team_size": 10,
       "order_unit": "人"
     }
   ],
   "meta_by_url": {
+    "https://realdgame.jp/shop/nagoya/events/winterfes2026/": {
+      "title": "名古屋店ふゆまつり2026",
+      "type": null,
+      "start_type": "",
+      "max_team_size": null,
+      "is_anytime": false
+    },
+    "https://realdgame.jp/shop/nagoya/events/mad26/": {
+      "title": "リアル脱出ゲーム『マッド博士の異常な遺言状』（リバイバル）",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
     "https://realdgame.jp/shop/nagoya/events/puzzle22025/": {
       "title": "リアル脱出ゲーム『パズルルームからの脱出2』（リバイバル）",
       "type": "ルーム型",
@@ -339,6 +371,20 @@
     }
   },
   "meta_by_title": {
+    "名古屋店ふゆまつり2026": {
+      "title": "名古屋店ふゆまつり2026",
+      "type": null,
+      "start_type": "",
+      "max_team_size": null,
+      "is_anytime": false
+    },
+    "リアル脱出ゲーム「マッド博士の異常な遺言状」（リバイバル）": {
+      "title": "リアル脱出ゲーム『マッド博士の異常な遺言状』（リバイバル）",
+      "type": "ホール型",
+      "start_type": "一斉スタート",
+      "max_team_size": 6,
+      "is_anytime": false
+    },
     "リアル脱出ゲーム「パズルルームからの脱出2」（リバイバル）": {
       "title": "リアル脱出ゲーム『パズルルームからの脱出2』（リバイバル）",
       "type": "ルーム型",
